@@ -1,10 +1,9 @@
-# mzSpecLib specification
+# mzPAF specification reference data files
 
-The mzSpecLib specification is mainly being developed using Google Docs. With the following links you can add comments and suggest changes to the specification. All input is welcome!
+The mzPAF specification uses these files as auxiliary reference data so that enumerated values can be extended without altering the specification document.
 
-If you do experience problems to open or edit the files, please open an [issue](https://github.com/HUPO-PSI/mzSpecLib/issues).
+- IsobaricLabelIons.md - Easily human readable list of isobaric label ions that might be annotated or used as neutral losses
+- IsobaricLabelIons.json - Easily software parsable list of isobaric label ions that might be annotated or used as neutral losses, along with masses and other metadata
 
-- [mzSpecLib main specification document](https://docs.google.com/document/d/1l87lIyKTy2ti5yU7aqsLr7uX5jIU1dO7gEzyqWD2uQA/edit?usp=sharing)
-- [Metadata and CV term overview](https://drive.google.com/file/d/1rN5DJSowp2micxlwJQlPxlv39ZiaLEfv/edit?usp=sharing)
-- [mzSpecLib peak interetation format](https://docs.google.com/document/d/1yEUNG4Ump6vnbMDs4iV4s3XISflmOkRAyqUuutcCG2w/edit?usp=sharing)
-- [mzSpecLib general data model schematic](https://drive.google.com/file/d/1OVh5ATfKXA77pM4CYzRfdupeRGu3vt5c/view?usp=sharing)
+- NeutralLossGroups.md - Easily human readable list of neutral losses that might be used for annotation
+- IsobaricLabelIons.json - Easily software parsable list of neutral losses that might be used for annotation, along with masses and other metadata
