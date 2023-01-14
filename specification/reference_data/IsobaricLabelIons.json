@@ -79,6 +79,16 @@
     "ion_type"   : "reporter",
     "mzs" : { "HCD" : 134.148245 }
   },
+  "TMT134C" : {
+    "label_type" : "TMT",
+    "ion_type"   : "reporter",
+    "mzs" : { "HCD" : 134.154565 }
+  },
+  "TMT135N" : {
+    "label_type" : "TMT",
+    "ion_type"   : "reporter",
+    "mzs" : { "HCD" : 135.151600 }
+  },
   "TMT0nterm" : {
     "label_type" : "TMTzero",
     "ion_type"   : "reporter+balance",

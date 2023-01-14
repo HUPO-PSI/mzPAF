@@ -28,6 +28,8 @@ https://assets.thermofisher.com/TFS-Assets/LSG/manuals/MAN0015866_2162600_TMT_Ma
 - TMT133N
 - TMT133C
 - TMT134N
+- TMT134C
+- TMT135N
 
 # iTRAQ peaks
 
