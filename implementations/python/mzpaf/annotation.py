@@ -672,11 +672,14 @@ class AnnotationStringParser(object):
     def __init__(self, pattern):
         self.pattern = pattern
 
-    def __call__(self, annotation_string: str, *, wrap_errors=True, **kwargs) -> List[IonAnnotationBase]:
+    def __call__(self, annotation_string: str, *, wrap_errors=False, **kwargs) -> List[IonAnnotationBase]:
         try:
             return self.parse_annotation(annotation_string, **kwargs)
         except ValueError as err:
-            return [InvalidAnnotation(annotation_string, str(err))]
+            if wrap_errors:
+                return [InvalidAnnotation(annotation_string, str(err))]
+            else:
+                raise
 
     def _parse_string(self, annotation_string: str, **kwargs) -> Tuple[re.Match, Dict[str, str]]:
         match = self.pattern.search(annotation_string)
