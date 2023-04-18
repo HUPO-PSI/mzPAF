@@ -2,7 +2,8 @@ import unittest
 
 from mzpaf import (
     parse_annotation, Unannotated, MassError, SMILESAnnotation,
-    ExternalIonAnnotation, FormulaAnnotation)
+    ExternalIonAnnotation, FormulaAnnotation, PeptideFragmentIonAnnotation,
+    ReferenceIonAnnotation)
 
 
 class TestAnnotationParser(unittest.TestCase):
@@ -122,3 +123,14 @@ class TestAnnotationParser(unittest.TestCase):
         parsed = parse_annotation(base)[0]
         assert isinstance(parsed, FormulaAnnotation)
         assert parsed.formula == "C34H53N7O15"
+
+    def test_parse_ordinal_with_sequence(self):
+        x, = parse_annotation("y1{{Glycan:Hex1}PEPTIDE}-H2O")
+        assert x.sequence == "{Glycan:Hex1}PEPTIDE"
+        assert x.neutral_losses == ["-H2O"]
+        assert isinstance(x, PeptideFragmentIonAnnotation)
+
+    def test_parse_reference(self):
+        x: ReferenceIonAnnotation
+        x, = parse_annotation("r[TMT126]")
+        assert x.reference == 'TMT126'

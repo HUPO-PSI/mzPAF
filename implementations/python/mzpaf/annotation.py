@@ -12,9 +12,9 @@ annotation_pattern = re.compile(r"""
    (?P<series_internal>[m](?P<internal_start>\d+):(?P<internal_end>\d+)(?:\{(?P<sequence_internal>.+)\})?)|
    (?P<precursor>p)|
    (:?I(?P<immonium>[ARNDCEQGHKMFPSTWYVIL])(?:\[(?P<immonium_modification>(?:[^\]]+))\])?)|
-   (?P<reporter>r(?:
+   (?P<reference>r(?:
     (?:\[
-        (?P<reporter_label>[^\]]+)
+        (?P<reference_label>[^\]]+)
     \])
    ))|
    (?:f\{(?P<formula>[A-Za-z0-9]+)\})|
@@ -309,7 +309,7 @@ class IonAnnotationBase(object, metaclass=SeriesLabelSubclassRegisteringMeta):
 
 
 class PeptideFragmentIonAnnotation(IonAnnotationBase):
-    __slots__ = ("position", )
+    __slots__ = ("position", "sequence")
 
     series_label = 'peptide'
 
@@ -352,7 +352,7 @@ class PeptideFragmentIonAnnotation(IonAnnotationBase):
 
 
 class InternalPeptideFragmentIonAnnotation(IonAnnotationBase):
-    __slots__ = ("start_position", "end_position")
+    __slots__ = ("start_position", "end_position", "sequence")
 
     series_label = 'internal'
 
@@ -459,35 +459,35 @@ class ImmoniumIonAnnotation(IonAnnotationBase):
         return self
 
 
-class ReporterIonAnnotation(IonAnnotationBase):
-    __slots__ = ("reporter_label", )
+class ReferenceIonAnnotation(IonAnnotationBase):
+    __slots__ = ("reference", )
 
-    series_label = "reporter"
+    series_label = "reference"
     _molecule_description_fields = {
-        "reporter_label": "The labeling reagent's name or channel information"
+        "reference": "The molecule refernce identifier"
     }
 
-    reporter_label: str
+    reference: str
 
-    def __init__(self, series, reporter_label, neutral_losses=None, isotope=None, adducts=None, charge=None,
+    def __init__(self, series, reference, neutral_losses=None, isotope=None, adducts=None, charge=None,
                  analyte_reference=None, mass_error=None, confidence=None, rest=None, is_auxiliary=None):
-        super(ReporterIonAnnotation, self).__init__(
+        super(ReferenceIonAnnotation, self).__init__(
             series, neutral_losses, isotope, adducts, charge, analyte_reference, mass_error, confidence,
             rest, is_auxiliary)
-        self.reporter_label = reporter_label
+        self.reference = reference
 
     def _format_ion(self):
-        return f"r[{self.reporter_label}]"
+        return f"r[{self.reference}]"
 
     def _molecule_description(self):
         d = super()._molecule_description()
-        d['reporter_label'] = self.reporter_label
+        d['reference'] = self.reference
         return d
 
     def _populate_from_dict(self, data):
         super()._populate_from_dict(data)
         descr = data['molecule_description']
-        self.reporter_label = descr['reporter_label']
+        self.reference = descr['reference']
         return self
 
 
@@ -819,8 +819,8 @@ class AnnotationStringParser(object):
                 data,
                 neutral_losses=neutral_losses, isotope=isotope, adducts=adducts, charge=charge,
                 analyte_reference=analyte_reference, mass_error=mass_error, confidence=confidence, **kwargs)
-        elif data.get('reporter'):
-            return self._dispatch_reporter(
+        elif data.get('reference'):
+            return self._dispatch_reference(
                 data,
                 neutral_losses=neutral_losses, isotope=isotope, adducts=adducts, charge=charge,
                 analyte_reference=analyte_reference, mass_error=mass_error, confidence=confidence, **kwargs)
@@ -884,9 +884,9 @@ class AnnotationStringParser(object):
             neutral_losses, isotope, adducts, charge, analyte_reference,
             mass_error, confidence)
 
-    def _dispatch_reporter(self, data, adducts, charge, isotope, neutral_losses, analyte_reference, mass_error, confidence, **kwargs):
-        return ReporterIonAnnotation(
-            "reporter", (data["reporter_label"]),
+    def _dispatch_reference(self, data, adducts, charge, isotope, neutral_losses, analyte_reference, mass_error, confidence, **kwargs):
+        return ReferenceIonAnnotation(
+            "reference", (data["reference_label"]),
             neutral_losses, isotope, adducts, charge, analyte_reference,
             mass_error, confidence)
 
