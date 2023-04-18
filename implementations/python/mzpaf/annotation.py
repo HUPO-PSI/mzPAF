@@ -1,6 +1,6 @@
 import re
 from sys import intern
-from typing import Any, List, Pattern, Dict, Tuple, Union
+from typing import Any, List, Optional, Pattern, Dict, Tuple, Union
 
 
 JSONDict = Dict[str, Union[List, Dict, int, float, str, bool, None]]
@@ -8,8 +8,8 @@ JSONDict = Dict[str, Union[List, Dict, int, float, str, bool, None]]
 annotation_pattern = re.compile(r"""
 ^(?P<is_auxiliary>&)?
    (?:(?P<analyte_reference>\d+)@)?
-   (?:(?:(?P<series>[axbycz]\.?)(?P<ordinal>\d+))|
-   (?P<series_internal>[m](?P<internal_start>\d+):(?P<internal_end>\d+))|
+   (?:(?:(?P<series>[axbycz]\.?)(?P<ordinal>\d+)(?:\{(?P<sequence_ordinal>.+)\})?)|
+   (?P<series_internal>[m](?P<internal_start>\d+):(?P<internal_end>\d+)(?:\{(?P<sequence_internal>.+)\})?)|
    (?P<precursor>p)|
    (:?I(?P<immonium>[ARNDCEQGHKMFPSTWYVIL])(?:\[(?P<immonium_modification>(?:[^\]]+))\])?)|
    (?P<reporter>r(?:
@@ -315,20 +315,25 @@ class PeptideFragmentIonAnnotation(IonAnnotationBase):
 
     _molecule_description_fields = {
         "series": "The peptide ion series this ion belongs to",
-        "position": "The position from the appropriate terminal along the peptide this ion was fragmented at (starting with 1)"
+        "position": "The position from the appropriate terminal along the peptide this ion was fragmented at (starting with 1)",
+        "sequence": "An arbitrary sequence that this ion came from, if not the primary sequence of the associated analyte",
     }
 
     position: int
+    sequence: Optional[str]
 
-    def __init__(self, series, position, neutral_losses=None, isotope=None, adducts=None, charge=None,
+    def __init__(self, series, position, sequence=None, neutral_losses=None, isotope=None, adducts=None, charge=None,
                  analyte_reference=None, mass_error=None, confidence=None, rest=None, is_auxiliary=None):
         super(PeptideFragmentIonAnnotation, self).__init__(
-            series, neutral_losses, isotope, adducts, charge, analyte_reference, mass_error, confidence,
-            rest, is_auxiliary)
+            series, neutral_losses, isotope, adducts, charge, analyte_reference,
+            mass_error, confidence, rest, is_auxiliary)
         self.position = position
+        self.sequence = sequence
 
     def _format_ion(self) -> str:
-        return f"{self.series}{self.position}"
+        if not self.sequence:
+            return f"{self.series}{self.position}"
+        return f"{self.series}{self.position}{{{self.sequence}}}"
 
     def _molecule_description(self) -> JSONDict:
         d = super()._molecule_description()
@@ -353,15 +358,20 @@ class InternalPeptideFragmentIonAnnotation(IonAnnotationBase):
 
     _molecule_description_fields = {
         "start_position": ("N-terminal amino acid residue of the fragment in the "
-                           "original peptide sequence (beginning with 1, counting from the N-terminus)"),
-        "end_position": ("C-terminal amino acid residue of the fragment in the original peptide sequence "
-                         "(beginning with 1, counting from the N-terminus)")
+                           "original peptide sequence (beginning with 1, counting from "
+                           "the N-terminus)"),
+        "end_position": ("C-terminal amino acid residue of the fragment in the original"
+                         " peptide sequence (beginning with 1, counting from the "
+                         "N-terminus)"),
+        "sequence": ("An arbitrary sequence that this ion came from, if not the primary"
+                     " sequence of the associated analyte"),
     }
 
     start_position: int
     end_position: int
+    sequence: str
 
-    def __init__(self, series, start_position, end_position, neutral_losses=None, isotope=None,
+    def __init__(self, series, start_position, end_position, sequence=None, neutral_losses=None, isotope=None,
                  adducts=None, charge=None, analyte_reference=None, mass_error=None, confidence=None,
                  rest=None, is_auxiliary=None):
         super(InternalPeptideFragmentIonAnnotation, self).__init__(
@@ -369,9 +379,12 @@ class InternalPeptideFragmentIonAnnotation(IonAnnotationBase):
             rest, is_auxiliary)
         self.start_position = start_position
         self.end_position = end_position
+        self.sequence = sequence
 
     def _format_ion(self) -> str:
-        return f"m{self.start_position}:{self.end_position}"
+        if not self.sequence:
+            return f"m{self.start_position}:{self.end_position}"
+        return f"m{self.start_position}:{self.end_position}{{{self.sequence}}}"
 
     def _molecule_description(self) -> JSONDict:
         d = super()._molecule_description()
@@ -840,7 +853,7 @@ class AnnotationStringParser(object):
 
     def _dispatch_peptide_fragment(self, data, adducts, charge, isotope, neutral_losses, analyte_reference, mass_error, confidence, **kwargs):
         return PeptideFragmentIonAnnotation(
-            data['series'], int(data['ordinal']),
+            data['series'], int(data['ordinal']), data['sequence_ordinal'],
             neutral_losses, isotope, adducts, charge, analyte_reference,
             mass_error, confidence)
 
@@ -855,6 +868,7 @@ class AnnotationStringParser(object):
     def _dispatch_internal_peptide_fragment(self, data, adducts, charge, isotope, neutral_losses, analyte_reference, mass_error, confidence, **kwargs):
         return InternalPeptideFragmentIonAnnotation(
             "internal", int(data['internal_start']), int(data['internal_end']),
+            data['sequence_internal'],
             neutral_losses, isotope, adducts, charge, analyte_reference,
             mass_error, confidence)
 
