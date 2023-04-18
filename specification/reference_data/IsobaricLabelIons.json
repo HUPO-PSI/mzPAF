@@ -62,7 +62,7 @@
   "TMT132C" : {
     "label_type" : "TMT",
     "ion_type"   : "reporter",
-    "mzs" : { "HCD" : 122.147855 }
+    "mzs" : { "HCD" : 132.147855 }
   },
   "TMT133N" : {
     "label_type" : "TMT",
