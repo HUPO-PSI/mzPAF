@@ -42,7 +42,12 @@ NUMBER = Sequence(
 
 ORDINAL = OneOrMore(NonTerminal("DIGIT"))
 
-CHARACTER = Choice(0, NonTerminal("DIGIT"), NonTerminal("UPPER_CASE_LETTER"), NonTerminal("LOWER_CASE_LETTER"))
+CHARACTER = Choice(
+    0,
+    NonTerminal("DIGIT"),
+    NonTerminal("UPPER_CASE_LETTER"),
+    NonTerminal("LOWER_CASE_LETTER")
+)
 
 AMINO_ACID = Choice(0, *list(std_aa_comp)[:-2])
 
@@ -218,8 +223,8 @@ Annotation = (
         IonType,
         ZeroOrMore(NeutralLoss),
         Optional(Isotope),
-        Optional(ChargeState),
         Optional(Adducts),
+        Optional(ChargeState),
         Optional(MassError),
         Optional(ConfidenceEstimate),
     )
