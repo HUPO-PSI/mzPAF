@@ -1,5 +1,5 @@
 {
-    "$schema": "https://raw.githubusercontent.com/HUPO-PSI/mzPAF/master/specification/peak-annotation-format/annotation-schema.json",
+    "$schema": "https://raw.githubusercontent.com/HUPO-PSI/mzPAF/master/specification/annotation-schema.json",
     "adducts": ["M+NH4"],
     "analyte_reference": 1,
     "charge": 2,
