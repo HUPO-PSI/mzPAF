@@ -1,6 +1,7 @@
 import re
 
-pattern = re.compile(r"""^(?P<is_auxiliary>&)?
+annotation_pattern = re.compile(r"""
+^(?P<is_auxiliary>&)?
    (?:(?P<analyte_reference>\d+)@)?
    (?:(?:(?P<series>[axbycz]\.?)(?P<ordinal>\d+)(?:\{(?P<sequence_ordinal>.+)\})?)|
    (?P<series_internal>[m](?P<internal_start>\d+):(?P<internal_end>\d+)(?:\{(?P<sequence_internal>.+)\})?)|
@@ -13,7 +14,7 @@ pattern = re.compile(r"""^(?P<is_auxiliary>&)?
    ))|
    (?:f\{(?P<formula>[A-Za-z0-9]+)\})|
    (?:_\{
-    (?P<external_ion>[^\{\}\s,/]+)
+    (?P<named_compound>[^\{\}\s,/]+)
     \})|
    (?:s\{(?P<smiles>[^\}]+)\})|
    (?:(?P<unannotated>\?)(?P<unannotated_label>\d+)?)
@@ -31,4 +32,5 @@ pattern = re.compile(r"""^(?P<is_auxiliary>&)?
 (?:\[(?P<adducts>M(:?[+-]\d*[A-Z][A-Za-z0-9]*)+)\])?
 (?:\^(?P<charge>[+-]?\d+))?
 (?:/(?P<mass_error>[+-]?\d+(?:\.\d+)?)(?P<mass_error_unit>ppm)?)?
-(?:\*(?P<confidence>\d*(?:\.\d+)?))?""", re.X)
+(?:\*(?P<confidence>\d*(?:\.\d+)?))?
+""", re.X)

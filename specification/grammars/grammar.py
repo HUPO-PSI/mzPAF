@@ -69,6 +69,13 @@ PeptideIon = Group(
     Sequence(
         Choice(0, *list(map(Terminal, ("a", "b", "c", "x", "y", "z")))),
         NonTerminal("ORDINAL"),
+        Optional(
+            Sequence(
+                Terminal("{"),
+                Group(OneOrMore(NonTerminal("ANY")), 'ProForma 2.0 Sequence'),
+                Terminal("}")
+            )
+        )
     ),
     "Peptide Ion",
 )
@@ -87,6 +94,11 @@ InternalIon = Group(
         NonTerminal("ORDINAL"),
         Terminal(":"),
         NonTerminal("ORDINAL"),
+        Sequence(
+            Terminal("{"),
+            Group(NonTerminal("ANY"), 'ProForma 2.0 Sequence'),
+            Terminal("}")
+        )
     ),
     "Internal Peptide Ion",
 )
@@ -115,14 +127,14 @@ FormulaIon = Group(
     "Formula Ion"
 )
 
-ExternalIon = Group(
+NamedCompound = Group(
     Sequence(
         Terminal("_"),
         Terminal('{'),
         OneOrMore(NonTerminal("CHARACTER")),
         Terminal('}'),
     ),
-    "External Ion"
+    "Named Compound"
 )
 
 UnknownIon = Group(
@@ -149,7 +161,7 @@ IonType = Group(
         ReporterIon,
         PrecursorIon,
         FormulaIon,
-        ExternalIon,
+        NamedCompound,
         SMILESIon,
         UnknownIon,
     ),

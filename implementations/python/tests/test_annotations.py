@@ -2,7 +2,7 @@ import unittest
 
 from mzpaf import (
     parse_annotation, Unannotated, MassError, SMILESAnnotation,
-    ExternalIonAnnotation, FormulaAnnotation, PeptideFragmentIonAnnotation,
+    NamedCompoundIonAnnotation, FormulaAnnotation, PeptideFragmentIonAnnotation,
     ReferenceIonAnnotation)
 
 
@@ -107,8 +107,8 @@ class TestAnnotationParser(unittest.TestCase):
     def test_parse_external(self):
         base = "_{foobar}"
         parsed = parse_annotation(base)[0]
-        assert isinstance(parsed, ExternalIonAnnotation)
-        assert parsed.label == 'foobar'
+        assert isinstance(parsed, NamedCompoundIonAnnotation)
+        assert parsed.compound_name == 'foobar'
 
     def test_parse_formula(self):
         base = "f{C34H53N7O15}"

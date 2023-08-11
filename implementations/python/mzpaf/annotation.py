@@ -29,7 +29,7 @@ annotation_pattern = re.compile(r"""
    ))|
    (?:f\{(?P<formula>[A-Za-z0-9]+)\})|
    (?:_\{
-    (?P<external_ion>[^\{\}\s,/]+)
+    (?P<named_compound>[^\{\}\s,/]+)
     \})|
    (?:s\{(?P<smiles>[^\}]+)\})|
    (?:(?P<unannotated>\?)(?P<unannotated_label>\d+)?)
@@ -52,7 +52,7 @@ annotation_pattern = re.compile(r"""
 
 # At the time of first writing, this pattern could be translated into the equivalent
 # ECMAScript compliant regex:
-# ^(?:(?<analyte_reference>[^@\s]+)@)?(?:(?:(?<series>[axbycz]\.?)(?<ordinal>\d+))|(?<series_internal>[m](?<internal_start>\d+):(?<internal_end>\d+))|(?<precursor>p)|(:?I(?<immonium>[ARNDCEQGHKMFPSTWYVIL])(?:\[(?<immonium_modification>(?:[^\]]+))\])?)|(?<reporter>r(?:(?:\[(?<reporter_label>[^\]]+)\])))|(?:f\{(?<formula>[A-Za-z0-9]+)\})|(?:_(?<external_ion>[^\s,/]+)))(?<neutral_losses>(?:[+-]\d*(?:(?:[A-Z][A-Za-z0-9]*)|(?:\[(?:(?:[A-Za-z0-9:\.]+))\])))+)?(?:(?<isotope>[+-]\d*)i)?(?:\^(?<charge>[+-]?\d+))?(?:\[(?<adducts>M(:?[+-]\d*[A-Z][A-Za-z0-9]*)+)\])?(?:/(?<mass_error>[+-]?\d+(?:\.\d+)?)(?<mass_error_unit>ppm)?)?(?:\*(?<confidence>\d*(?:\.\d+)?))?
+# ^(?<is_auxiliary>&)?(?:(?<analyte_reference>\d+)@)?(?:(?:(?<series>[axbycz]\.?)(?<ordinal>\d+)(?:\{(?<sequence_ordinal>.+)\})?)|(?<series_internal>[m](?<internal_start>\d+):(?<internal_end>\d+)(?:\{(?<sequence_internal>.+)\})?)|(?<precursor>p)|(:?I(?<immonium>[ARNDCEQGHKMFPSTWYVIL])(?:\[(?<immonium_modification>(?:[^\]]+))\])?)|(?<reference>r(?:(?:\[(?<reference_label>[^\]]+)\])))|(?:f\{(?<formula>[A-Za-z0-9]+)\})|(?:_\{(?<named_compound>[^\{\}\s,\/]+)\})|(?:s\{(?<smiles>[^\}]+)\})|(?:(?<unannotated>\?)(?<unannotated_label>\d+)?))(?<neutral_losses>(?:[+-]\d*(?:(?:[A-Z][A-Za-z0-9]*)|(?:\[(?:(?:[A-Za-z0-9:\.]+))\])))+)?(?:(?<isotope>[+-]\d*)i)?(?:\[(?<adducts>M(:?[+-]\d*[A-Z][A-Za-z0-9]*)+)\])?(?:\^(?<charge>[+-]?\d+))?(?:\/(?<mass_error>[+-]?\d+(?:\.\d+)?)(?<mass_error_unit>ppm)?)?(?:\*(?<confidence>\d*(?:\.\d+)?))?
 # Line breaks not introduced to preserve syntactic correctness.
 
 
@@ -633,36 +633,36 @@ class ReferenceIonAnnotation(IonAnnotationBase):
         return self
 
 
-class ExternalIonAnnotation(IonAnnotationBase):
-    __slots__ = ('label', )
+class NamedCompoundIonAnnotation(IonAnnotationBase):
+    __slots__ = ('compound_name', )
 
-    series_label = "external"
+    series_label = "named_compound"
 
     _molecule_description_fields = {
-        "label": "The name of the external ion being marked"
+        "compound_name": "The name of the named compound ion being marked"
     }
 
-    label: str
+    compound_name: str
 
     def __init__(self, series, label, neutral_losses=None, isotope=None, adducts=None, charge=None,
                  analyte_reference=None, mass_error=None, confidence=None, rest=None, is_auxiliary=None):
-        super(ExternalIonAnnotation, self).__init__(
+        super(NamedCompoundIonAnnotation, self).__init__(
             series, neutral_losses, isotope, adducts, charge, analyte_reference, mass_error, confidence,
             rest, is_auxiliary)
-        self.label = label
+        self.compound_name = label
 
     def _format_ion(self):
-        return f"_{{{self.label}}}"
+        return f"_{{{self.compound_name}}}"
 
     def _molecule_description(self):
         d = super()._molecule_description()
-        d['label'] = self.label
+        d['label'] = self.compound_name
         return d
 
     def _populate_from_dict(self, data):
         super()._populate_from_dict(data)
         descr = data['molecule_description']
-        self.label = descr['label']
+        self.compound_name = descr['compound_name']
         return self
 
 
@@ -966,8 +966,8 @@ class AnnotationStringParser(object):
                 data,
                 neutral_losses=neutral_losses, isotope=isotope, adducts=adducts, charge=charge,
                 analyte_reference=analyte_reference, mass_error=mass_error, confidence=confidence, **kwargs)
-        elif data.get('external_ion'):
-            return self._dispatch_external(
+        elif data.get('named_compound'):
+            return self._dispatch_named_compound(
                 data,
                 neutral_losses=neutral_losses, isotope=isotope, adducts=adducts, charge=charge,
                 analyte_reference=analyte_reference, mass_error=mass_error, confidence=confidence, **kwargs)
@@ -1032,9 +1032,9 @@ class AnnotationStringParser(object):
             neutral_losses, isotope, adducts, charge, analyte_reference,
             mass_error, confidence)
 
-    def _dispatch_external(self, data, adducts, charge, isotope, neutral_losses, analyte_reference, mass_error, confidence, **kwargs):
-        return ExternalIonAnnotation(
-            "external", data['external_ion'],
+    def _dispatch_named_compound(self, data, adducts, charge, isotope, neutral_losses, analyte_reference, mass_error, confidence, **kwargs):
+        return NamedCompoundIonAnnotation(
+            "named_compound", data['named_compound'],
             neutral_losses, isotope, adducts, charge, analyte_reference,
             mass_error, confidence)
 
