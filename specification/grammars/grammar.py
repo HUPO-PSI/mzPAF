@@ -42,7 +42,12 @@ NUMBER = Sequence(
 
 ORDINAL = OneOrMore(NonTerminal("DIGIT"))
 
-CHARACTER = Choice(0, NonTerminal("DIGIT"), NonTerminal("UPPER_CASE_LETTER"), NonTerminal("LOWER_CASE_LETTER"))
+CHARACTER = Choice(
+    0,
+    NonTerminal("DIGIT"),
+    NonTerminal("UPPER_CASE_LETTER"),
+    NonTerminal("LOWER_CASE_LETTER")
+)
 
 AMINO_ACID = Choice(0, *list(std_aa_comp)[:-2])
 
@@ -64,6 +69,13 @@ PeptideIon = Group(
     Sequence(
         Choice(0, *list(map(Terminal, ("a", "b", "c", "x", "y", "z")))),
         NonTerminal("ORDINAL"),
+        Optional(
+            Sequence(
+                Terminal("{"),
+                Group(OneOrMore(NonTerminal("ANY")), 'ProForma 2.0 Sequence'),
+                Terminal("}")
+            )
+        )
     ),
     "Peptide Ion",
 )
@@ -82,6 +94,11 @@ InternalIon = Group(
         NonTerminal("ORDINAL"),
         Terminal(":"),
         NonTerminal("ORDINAL"),
+        Sequence(
+            Terminal("{"),
+            Group(NonTerminal("ANY"), 'ProForma 2.0 Sequence'),
+            Terminal("}")
+        )
     ),
     "Internal Peptide Ion",
 )
@@ -110,14 +127,14 @@ FormulaIon = Group(
     "Formula Ion"
 )
 
-ExternalIon = Group(
+NamedCompound = Group(
     Sequence(
         Terminal("_"),
         Terminal('{'),
         OneOrMore(NonTerminal("CHARACTER")),
         Terminal('}'),
     ),
-    "External Ion"
+    "Named Compound"
 )
 
 UnknownIon = Group(
@@ -144,7 +161,7 @@ IonType = Group(
         ReporterIon,
         PrecursorIon,
         FormulaIon,
-        ExternalIon,
+        NamedCompound,
         SMILESIon,
         UnknownIon,
     ),
@@ -218,8 +235,8 @@ Annotation = (
         IonType,
         ZeroOrMore(NeutralLoss),
         Optional(Isotope),
-        Optional(ChargeState),
         Optional(Adducts),
+        Optional(ChargeState),
         Optional(MassError),
         Optional(ConfidenceEstimate),
     )

@@ -1,25 +1,35 @@
+"""
+An implementation of the mzPAF product ion annotation format.
+
+This reference implementation includes parsing the compact text format
+and serializing.
+"""
 import re
 from sys import intern
-from typing import Any, List, Pattern, Dict, Tuple, Union
+from typing import Any, List, Optional, Pattern, Dict, Tuple, Union
 
+try:
+    from pyteomics.proforma import ProForma
+except ImportError:
+    ProForma = None
 
 JSONDict = Dict[str, Union[List, Dict, int, float, str, bool, None]]
 
 annotation_pattern = re.compile(r"""
 ^(?P<is_auxiliary>&)?
    (?:(?P<analyte_reference>\d+)@)?
-   (?:(?:(?P<series>[axbycz]\.?)(?P<ordinal>\d+))|
-   (?P<series_internal>[m](?P<internal_start>\d+):(?P<internal_end>\d+))|
+   (?:(?:(?P<series>[axbycz]\.?)(?P<ordinal>\d+)(?:\{(?P<sequence_ordinal>.+)\})?)|
+   (?P<series_internal>[m](?P<internal_start>\d+):(?P<internal_end>\d+)(?:\{(?P<sequence_internal>.+)\})?)|
    (?P<precursor>p)|
    (:?I(?P<immonium>[ARNDCEQGHKMFPSTWYVIL])(?:\[(?P<immonium_modification>(?:[^\]]+))\])?)|
-   (?P<reporter>r(?:
+   (?P<reference>r(?:
     (?:\[
-        (?P<reporter_label>[^\]]+)
+        (?P<reference_label>[^\]]+)
     \])
    ))|
    (?:f\{(?P<formula>[A-Za-z0-9]+)\})|
    (?:_\{
-    (?P<external_ion>[^\{\}\s,/]+)
+    (?P<named_compound>[^\{\}\s,/]+)
     \})|
    (?:s\{(?P<smiles>[^\}]+)\})|
    (?:(?P<unannotated>\?)(?P<unannotated_label>\d+)?)
@@ -34,15 +44,15 @@ annotation_pattern = re.compile(r"""
     )
 )+)?
 (?:(?P<isotope>[+-]\d*)i)?
-(?:\^(?P<charge>[+-]?\d+))?
 (?:\[(?P<adducts>M(:?[+-]\d*[A-Z][A-Za-z0-9]*)+)\])?
+(?:\^(?P<charge>[+-]?\d+))?
 (?:/(?P<mass_error>[+-]?\d+(?:\.\d+)?)(?P<mass_error_unit>ppm)?)?
 (?:\*(?P<confidence>\d*(?:\.\d+)?))?
 """, re.X)
 
 # At the time of first writing, this pattern could be translated into the equivalent
 # ECMAScript compliant regex:
-# ^(?:(?<analyte_reference>[^@\s]+)@)?(?:(?:(?<series>[axbycz]\.?)(?<ordinal>\d+))|(?<series_internal>[m](?<internal_start>\d+):(?<internal_end>\d+))|(?<precursor>p)|(:?I(?<immonium>[ARNDCEQGHKMFPSTWYVIL])(?:\[(?<immonium_modification>(?:[^\]]+))\])?)|(?<reporter>r(?:(?:\[(?<reporter_label>[^\]]+)\])))|(?:f\{(?<formula>[A-Za-z0-9]+)\})|(?:_(?<external_ion>[^\s,/]+)))(?<neutral_losses>(?:[+-]\d*(?:(?:[A-Z][A-Za-z0-9]*)|(?:\[(?:(?:[A-Za-z0-9:\.]+))\])))+)?(?:(?<isotope>[+-]\d*)i)?(?:\^(?<charge>[+-]?\d+))?(?:\[(?<adducts>M(:?[+-]\d*[A-Z][A-Za-z0-9]*)+)\])?(?:/(?<mass_error>[+-]?\d+(?:\.\d+)?)(?<mass_error_unit>ppm)?)?(?:\*(?<confidence>\d*(?:\.\d+)?))?
+# ^(?<is_auxiliary>&)?(?:(?<analyte_reference>\d+)@)?(?:(?:(?<series>[axbycz]\.?)(?<ordinal>\d+)(?:\{(?<sequence_ordinal>.+)\})?)|(?<series_internal>[m](?<internal_start>\d+):(?<internal_end>\d+)(?:\{(?<sequence_internal>.+)\})?)|(?<precursor>p)|(:?I(?<immonium>[ARNDCEQGHKMFPSTWYVIL])(?:\[(?<immonium_modification>(?:[^\]]+))\])?)|(?<reference>r(?:(?:\[(?<reference_label>[^\]]+)\])))|(?:f\{(?<formula>[A-Za-z0-9]+)\})|(?:_\{(?<named_compound>[^\{\}\s,\/]+)\})|(?:s\{(?<smiles>[^\}]+)\})|(?:(?<unannotated>\?)(?<unannotated_label>\d+)?))(?<neutral_losses>(?:[+-]\d*(?:(?:[A-Z][A-Za-z0-9]*)|(?:\[(?:(?:[A-Za-z0-9:\.]+))\])))+)?(?:(?<isotope>[+-]\d*)i)?(?:\[(?<adducts>M(:?[+-]\d*[A-Z][A-Za-z0-9]*)+)\])?(?:\^(?<charge>[+-]?\d+))?(?:\/(?<mass_error>[+-]?\d+(?:\.\d+)?)(?<mass_error_unit>ppm)?)?(?:\*(?<confidence>\d*(?:\.\d+)?))?
 # Line breaks not introduced to preserve syntactic correctness.
 
 
@@ -52,7 +62,8 @@ def _sre_to_ecma(pattern):
 
 
 def tokenize_signed_symbol_list(string: str) -> List[str]:
-    '''Parse a string containing signed lists of symbols into
+    """
+    Parse a string containing signed lists of symbols into
     a signed token list
 
     Parameters
@@ -63,7 +74,7 @@ def tokenize_signed_symbol_list(string: str) -> List[str]:
     Returns
     -------
     list
-    '''
+    """
     if not string:
         return []
     tokens = re.split(r"\s*(\+|-)\s*", string)
@@ -88,7 +99,23 @@ def tokenize_signed_symbol_list(string: str) -> List[str]:
     return result
 
 
-def combine_formula(tokens: List[str], leading_sign: bool = False):
+def combine_formula(tokens: List[str], leading_sign: bool = False) -> str:
+    """
+    Combine the tokens of one or more formulae into a parseable string.
+
+    Parameters
+    ----------
+    tokens : list[str]
+        The formula tokens to merge, should be composed of valid chemical group
+        notation, optionally with leading signs (+/-).
+    leading_sign : bool
+        Whether or not to enforce that the formula must have a leading sign, adding
+        the default ``+`` sign if no leading sign is present.
+
+    Returns
+    -------
+    str
+    """
     if not tokens:
         return ''
     if not tokens[0].startswith("-") and leading_sign:
@@ -104,6 +131,15 @@ def combine_formula(tokens: List[str], leading_sign: bool = False):
 
 
 class MassError(object):
+    """
+    Represent the mass error of a peak annotation.
+
+    unit : str
+        The unit of the mass error, may be Da (daltons) or ppm (parts-per-million)
+    mass_error : float
+        The magnitude of the mass error
+    """
+
     _DEFAULT_UNIT = "Da"
 
     unit: str
@@ -116,6 +152,13 @@ class MassError(object):
         self.unit = unit
 
     def serialize(self) -> str:
+        """
+        Serialize the mass error to the notation used in mzPAF.
+
+        Returns
+        -------
+        str
+        """
         unit = self.unit
         if unit == self._DEFAULT_UNIT:
             unit = ''
@@ -134,19 +177,52 @@ class MassError(object):
         return f"{self.__class__.__name__}({self.mass_error}, {self.unit})"
 
     def to_json(self) -> JSONDict:
+        """
+        Serialize the mass error to a JSON-compatible :class:`dict`
+
+        Returns
+        -------
+        dict
+        """
         return {
             "value": self.mass_error,
             "unit": self.unit
         }
 
 
-class SeriesLabelSubclassRegisteringMeta(type):
+class _HasSequenceMixin:
+    __slots__ = ()
+    sequence: str
+
+    def has_sequence(self) -> bool:
+        return bool(self.sequence)
+
+    def parse_sequence(self):
+        if not self.has_sequence():
+            raise ValueError(
+                "This annotation has no specified sequence. See the referenced analyte to get the sequence.")
+        if ProForma is None:
+            raise ModuleNotFoundError("Cannot parse ProForma, please install pyteomics to support ProForma parsing.")
+        return ProForma.parse(self.sequence)
+
+
+class _SeriesLabelSubclassRegisteringMeta(type):
+    """
+    A metaclass which does some custom registration whenever a subclass is defined.
+
+    Attributes
+    ----------
+    _label_registry : :class:`dict` mapping :class:`str` to implementing :class:`_SeriesLabelSubclassRegisteringMeta` types.
+    """
+
+    _label_registry: Dict[str, '_SeriesLabelSubclassRegisteringMeta']
+
     def __new__(mcls, name, bases, attrs):
         label = attrs.get("series_label")
         if label and isinstance(label, str):
             label = intern(label)
         override_label = attrs.get('override_label', False)
-        cls = super(SeriesLabelSubclassRegisteringMeta,
+        cls = super(_SeriesLabelSubclassRegisteringMeta,
                     mcls).__new__(mcls, name, bases, attrs)
         if not hasattr(cls, '_label_registry'):
             registry = cls._label_registry = {}
@@ -158,7 +234,13 @@ class SeriesLabelSubclassRegisteringMeta(type):
         return cls
 
 
-class IonAnnotationBase(object, metaclass=SeriesLabelSubclassRegisteringMeta):
+class IonAnnotationBase(object, metaclass=_SeriesLabelSubclassRegisteringMeta):
+    """
+    A base class for all mzPAF ion annotations.
+
+    Provides shared functionality and common attributes for the data model.
+    """
+
     __slots__ = ("series", "neutral_losses", "isotope", "adducts", "charge", "analyte_reference",
                  "mass_error", "confidence", "rest", "is_auxiliary")
 
@@ -195,22 +277,6 @@ class IonAnnotationBase(object, metaclass=SeriesLabelSubclassRegisteringMeta):
         self.rest = rest
         self.is_auxiliary = is_auxiliary
 
-    @property
-    def adduct(self) -> List:
-        return self.adducts
-
-    @adduct.setter
-    def adduct(self, value):
-        self.adducts = value
-
-    @property
-    def neutral_loss(self) -> List:
-        return self.neutral_losses
-
-    @neutral_loss.setter
-    def neutral_loss(self, value):
-        self.neutral_losses = value
-
     def __hash__(self):
         return hash(self.serialize())
 
@@ -227,6 +293,13 @@ class IonAnnotationBase(object, metaclass=SeriesLabelSubclassRegisteringMeta):
         raise NotImplementedError()
 
     def serialize(self) -> str:
+        """
+        Serialize the data model back to an mzPAF formatted string.
+
+        Returns
+        -------
+        str
+        """
         parts = []
         if self.analyte_reference is not None:
             parts.append(f"{self.analyte_reference}@")
@@ -240,12 +313,12 @@ class IonAnnotationBase(object, metaclass=SeriesLabelSubclassRegisteringMeta):
             if isotope == 1:
                 isotope = ''
             parts.append(f"{sign}{isotope}i")
-        if self.charge != 0 and self.charge != 1:
-            charge = abs(self.charge)
-            parts.append(f"^{charge}")
         if self.adducts:
             parts.append('[{}]'.format(combine_formula(
                 self.adducts, leading_sign=False)))
+        if self.charge != 0 and self.charge != 1:
+            charge = abs(self.charge)
+            parts.append(f"^{charge}")
         if self.mass_error is not None:
             parts.append("/")
             parts.append(self.mass_error.serialize())
@@ -268,6 +341,13 @@ class IonAnnotationBase(object, metaclass=SeriesLabelSubclassRegisteringMeta):
         }
 
     def to_json(self, exclude_missing=False) -> JSONDict:
+        """
+        Convert the data model into a JSON-serializable :class:`dict`.
+
+        Returns
+        -------
+        dict
+        """
         #TODO: When neutral losses and adducts are formalized types, convert to string/JSON here
         d = {}
         skips = ('series', 'rest', 'is_auxiliary')
@@ -300,6 +380,13 @@ class IonAnnotationBase(object, metaclass=SeriesLabelSubclassRegisteringMeta):
 
     @classmethod
     def from_json(cls, data) -> 'IonAnnotationBase':
+        """
+        Convert parsed JSON data back into formal data structures.
+
+        Returns
+        -------
+        IonAnnotationBase
+        """
         descr = data["molecule_description"]
         series_label = descr['series_label']
         cls = cls._label_registry[series_label]
@@ -308,33 +395,53 @@ class IonAnnotationBase(object, metaclass=SeriesLabelSubclassRegisteringMeta):
         return self
 
 
-class PeptideFragmentIonAnnotation(IonAnnotationBase):
-    __slots__ = ("position", )
+class PeptideFragmentIonAnnotation(IonAnnotationBase, _HasSequenceMixin):
+    """
+    Represent a canonical peptide backbone fragment, such as a b or y ion in the Roepstorff notation.
+
+    Attributes
+    ----------
+    series : str
+        The ion series
+    position : int
+        The ordinal bond position relative to the series terminal for this fragment
+    sequence : str or :const:`None`
+        The sequence this fragment is derived from if it is not a specified analyte from
+        the spectrum metadata. Should be written in ProForma 2.0 notation.
+    """
+
+    __slots__ = ("position", "sequence")
 
     series_label = 'peptide'
 
     _molecule_description_fields = {
         "series": "The peptide ion series this ion belongs to",
-        "position": "The position from the appropriate terminal along the peptide this ion was fragmented at (starting with 1)"
+        "position": "The position from the appropriate terminal along the peptide this ion was fragmented at (starting with 1)",
+        "sequence": "An arbitrary sequence that this ion came from, if not the primary sequence of the associated analyte",
     }
 
     position: int
+    sequence: Optional[str]
 
-    def __init__(self, series, position, neutral_losses=None, isotope=None, adducts=None, charge=None,
+    def __init__(self, series, position, sequence=None, neutral_losses=None, isotope=None, adducts=None, charge=None,
                  analyte_reference=None, mass_error=None, confidence=None, rest=None, is_auxiliary=None):
         super(PeptideFragmentIonAnnotation, self).__init__(
-            series, neutral_losses, isotope, adducts, charge, analyte_reference, mass_error, confidence,
-            rest, is_auxiliary)
+            series, neutral_losses, isotope, adducts, charge, analyte_reference,
+            mass_error, confidence, rest, is_auxiliary)
         self.position = position
+        self.sequence = sequence
 
     def _format_ion(self) -> str:
-        return f"{self.series}{self.position}"
+        if not self.sequence:
+            return f"{self.series}{self.position}"
+        return f"{self.series}{self.position}{{{self.sequence}}}"
 
     def _molecule_description(self) -> JSONDict:
         d = super()._molecule_description()
         d.update({
             "series": self.series,
-            "position": self.position
+            "position": self.position,
+            "sequence": self.sequence
         })
         return d
 
@@ -343,25 +450,46 @@ class PeptideFragmentIonAnnotation(IonAnnotationBase):
         descr = data['molecule_description']
         self.series = descr['series']
         self.position = descr['position']
+        self.sequence = descr['sequence']
         return self
 
 
-class InternalPeptideFragmentIonAnnotation(IonAnnotationBase):
-    __slots__ = ("start_position", "end_position")
+class InternalPeptideFragmentIonAnnotation(IonAnnotationBase, _HasSequenceMixin):
+    """
+    Represent an internal fragment of a peptide, containing neither of the original
+    termini of the source peptide.
+
+    Attributes
+    ----------
+    start_position : int
+        The bond ordinal where the first break occurs relative to the N-terminal of the peptide.
+    end_position : int
+        The bond ordinal where the second break occurs relative to the N-terminal of the peptide.
+    sequence : str or :const:`None`
+        The sequence this fragment is derived from if it is not a specified analyte from
+        the spectrum metadata. Should be written in ProForma 2.0 notation.
+    """
+
+    __slots__ = ("start_position", "end_position", "sequence")
 
     series_label = 'internal'
 
     _molecule_description_fields = {
         "start_position": ("N-terminal amino acid residue of the fragment in the "
-                           "original peptide sequence (beginning with 1, counting from the N-terminus)"),
-        "end_position": ("C-terminal amino acid residue of the fragment in the original peptide sequence "
-                         "(beginning with 1, counting from the N-terminus)")
+                           "original peptide sequence (beginning with 1, counting from "
+                           "the N-terminus)"),
+        "end_position": ("C-terminal amino acid residue of the fragment in the original"
+                         " peptide sequence (beginning with 1, counting from the "
+                         "N-terminus)"),
+        "sequence": ("An arbitrary sequence that this ion came from, if not the primary"
+                     " sequence of the associated analyte"),
     }
 
     start_position: int
     end_position: int
+    sequence: str
 
-    def __init__(self, series, start_position, end_position, neutral_losses=None, isotope=None,
+    def __init__(self, series, start_position, end_position, sequence=None, neutral_losses=None, isotope=None,
                  adducts=None, charge=None, analyte_reference=None, mass_error=None, confidence=None,
                  rest=None, is_auxiliary=None):
         super(InternalPeptideFragmentIonAnnotation, self).__init__(
@@ -369,14 +497,18 @@ class InternalPeptideFragmentIonAnnotation(IonAnnotationBase):
             rest, is_auxiliary)
         self.start_position = start_position
         self.end_position = end_position
+        self.sequence = sequence
 
     def _format_ion(self) -> str:
-        return f"m{self.start_position}:{self.end_position}"
+        if not self.sequence:
+            return f"m{self.start_position}:{self.end_position}"
+        return f"m{self.start_position}:{self.end_position}{{{self.sequence}}}"
 
     def _molecule_description(self) -> JSONDict:
         d = super()._molecule_description()
         d['start_position'] = self.start_position
         d['end_position'] = self.end_position
+        d['sequence'] = self.sequence
         return d
 
     def _populate_from_dict(self, data) -> IonAnnotationBase:
@@ -384,10 +516,13 @@ class InternalPeptideFragmentIonAnnotation(IonAnnotationBase):
         descr = data['molecule_description']
         self.start_position = descr['start_position']
         self.end_position = descr['end_position']
+        self.sequence = descr['sequence']
         return self
 
 
 class PrecursorIonAnnotation(IonAnnotationBase):
+    """The intact, possibly charge-reduced, precursor ion."""
+
     __slots__ = ()
 
     series_label = "precursor"
@@ -405,6 +540,17 @@ class PrecursorIonAnnotation(IonAnnotationBase):
 
 
 class ImmoniumIonAnnotation(IonAnnotationBase):
+    """
+    Represent a single amino acid ionized with a neutral loss.
+
+    Attributes
+    ----------
+    amino_acid : str
+        The amino acid ionized
+    modification : str or :const:`None`
+        A modification still attached to the amino acid. Should be denoted using a controlled vocabulary term.
+    """
+
     __slots__ = ("amino_acid", "modification")
 
     series_label = "immonium"
@@ -446,68 +592,77 @@ class ImmoniumIonAnnotation(IonAnnotationBase):
         return self
 
 
-class ReporterIonAnnotation(IonAnnotationBase):
-    __slots__ = ("reporter_label", )
+class ReferenceIonAnnotation(IonAnnotationBase):
+    """
+    An ion which matches a referencea entity like a TMT reporter ion or a signature ion.
 
-    series_label = "reporter"
+    Attribute
+    ---------
+    reference : str
+        The reference identifier.
+    """
+
+    __slots__ = ("reference", )
+
+    series_label = "reference"
     _molecule_description_fields = {
-        "reporter_label": "The labeling reagent's name or channel information"
+        "reference": "The molecule refernce identifier"
     }
 
-    reporter_label: str
+    reference: str
 
-    def __init__(self, series, reporter_label, neutral_losses=None, isotope=None, adducts=None, charge=None,
+    def __init__(self, series, reference, neutral_losses=None, isotope=None, adducts=None, charge=None,
                  analyte_reference=None, mass_error=None, confidence=None, rest=None, is_auxiliary=None):
-        super(ReporterIonAnnotation, self).__init__(
+        super(ReferenceIonAnnotation, self).__init__(
             series, neutral_losses, isotope, adducts, charge, analyte_reference, mass_error, confidence,
             rest, is_auxiliary)
-        self.reporter_label = reporter_label
+        self.reference = reference
 
     def _format_ion(self):
-        return f"r[{self.reporter_label}]"
+        return f"r[{self.reference}]"
 
     def _molecule_description(self):
         d = super()._molecule_description()
-        d['reporter_label'] = self.reporter_label
+        d['reference'] = self.reference
         return d
 
     def _populate_from_dict(self, data):
         super()._populate_from_dict(data)
         descr = data['molecule_description']
-        self.reporter_label = descr['reporter_label']
+        self.reference = descr['reference']
         return self
 
 
-class ExternalIonAnnotation(IonAnnotationBase):
-    __slots__ = ('label', )
+class NamedCompoundIonAnnotation(IonAnnotationBase):
+    __slots__ = ('compound_name', )
 
-    series_label = "external"
+    series_label = "named_compound"
 
     _molecule_description_fields = {
-        "label": "The name of the external ion being marked"
+        "compound_name": "The name of the named compound ion being marked"
     }
 
-    label: str
+    compound_name: str
 
     def __init__(self, series, label, neutral_losses=None, isotope=None, adducts=None, charge=None,
                  analyte_reference=None, mass_error=None, confidence=None, rest=None, is_auxiliary=None):
-        super(ExternalIonAnnotation, self).__init__(
+        super(NamedCompoundIonAnnotation, self).__init__(
             series, neutral_losses, isotope, adducts, charge, analyte_reference, mass_error, confidence,
             rest, is_auxiliary)
-        self.label = label
+        self.compound_name = label
 
     def _format_ion(self):
-        return f"_{{{self.label}}}"
+        return f"_{{{self.compound_name}}}"
 
     def _molecule_description(self):
         d = super()._molecule_description()
-        d['label'] = self.label
+        d['label'] = self.compound_name
         return d
 
     def _populate_from_dict(self, data):
         super()._populate_from_dict(data)
         descr = data['molecule_description']
-        self.label = descr['label']
+        self.compound_name = descr['compound_name']
         return self
 
 
@@ -806,13 +961,13 @@ class AnnotationStringParser(object):
                 data,
                 neutral_losses=neutral_losses, isotope=isotope, adducts=adducts, charge=charge,
                 analyte_reference=analyte_reference, mass_error=mass_error, confidence=confidence, **kwargs)
-        elif data.get('reporter'):
-            return self._dispatch_reporter(
+        elif data.get('reference'):
+            return self._dispatch_reference(
                 data,
                 neutral_losses=neutral_losses, isotope=isotope, adducts=adducts, charge=charge,
                 analyte_reference=analyte_reference, mass_error=mass_error, confidence=confidence, **kwargs)
-        elif data.get('external_ion'):
-            return self._dispatch_external(
+        elif data.get('named_compound'):
+            return self._dispatch_named_compound(
                 data,
                 neutral_losses=neutral_losses, isotope=isotope, adducts=adducts, charge=charge,
                 analyte_reference=analyte_reference, mass_error=mass_error, confidence=confidence, **kwargs)
@@ -840,7 +995,7 @@ class AnnotationStringParser(object):
 
     def _dispatch_peptide_fragment(self, data, adducts, charge, isotope, neutral_losses, analyte_reference, mass_error, confidence, **kwargs):
         return PeptideFragmentIonAnnotation(
-            data['series'], int(data['ordinal']),
+            data['series'], int(data['ordinal']), data['sequence_ordinal'],
             neutral_losses, isotope, adducts, charge, analyte_reference,
             mass_error, confidence)
 
@@ -855,6 +1010,7 @@ class AnnotationStringParser(object):
     def _dispatch_internal_peptide_fragment(self, data, adducts, charge, isotope, neutral_losses, analyte_reference, mass_error, confidence, **kwargs):
         return InternalPeptideFragmentIonAnnotation(
             "internal", int(data['internal_start']), int(data['internal_end']),
+            data['sequence_internal'],
             neutral_losses, isotope, adducts, charge, analyte_reference,
             mass_error, confidence)
 
@@ -870,15 +1026,15 @@ class AnnotationStringParser(object):
             neutral_losses, isotope, adducts, charge, analyte_reference,
             mass_error, confidence)
 
-    def _dispatch_reporter(self, data, adducts, charge, isotope, neutral_losses, analyte_reference, mass_error, confidence, **kwargs):
-        return ReporterIonAnnotation(
-            "reporter", (data["reporter_label"]),
+    def _dispatch_reference(self, data, adducts, charge, isotope, neutral_losses, analyte_reference, mass_error, confidence, **kwargs):
+        return ReferenceIonAnnotation(
+            "reference", (data["reference_label"]),
             neutral_losses, isotope, adducts, charge, analyte_reference,
             mass_error, confidence)
 
-    def _dispatch_external(self, data, adducts, charge, isotope, neutral_losses, analyte_reference, mass_error, confidence, **kwargs):
-        return ExternalIonAnnotation(
-            "external", data['external_ion'],
+    def _dispatch_named_compound(self, data, adducts, charge, isotope, neutral_losses, analyte_reference, mass_error, confidence, **kwargs):
+        return NamedCompoundIonAnnotation(
+            "named_compound", data['named_compound'],
             neutral_losses, isotope, adducts, charge, analyte_reference,
             mass_error, confidence)
 

@@ -2,7 +2,8 @@ import unittest
 
 from mzpaf import (
     parse_annotation, Unannotated, MassError, SMILESAnnotation,
-    ExternalIonAnnotation, FormulaAnnotation)
+    NamedCompoundIonAnnotation, FormulaAnnotation, PeptideFragmentIonAnnotation,
+    ReferenceIonAnnotation)
 
 
 class TestAnnotationParser(unittest.TestCase):
@@ -20,29 +21,21 @@ class TestAnnotationParser(unittest.TestCase):
         parsed = parse_annotation(base)[0]
         assert parsed.series == 'b'
         assert parsed.position == 14
-        assert parsed.neutral_loss == ['-H2O', '-NH3', '[Foo]']
+        assert parsed.neutral_losses == ['-H2O', '-NH3', '[Foo]']
 
         base += "+2i"
 
         parsed = parse_annotation(base)[0]
         assert parsed.series == 'b'
         assert parsed.position == 14
-        assert parsed.neutral_loss == ['-H2O', '-NH3', '[Foo]']
+        assert parsed.neutral_losses == ['-H2O', '-NH3', '[Foo]']
         assert parsed.isotope == 2
 
-        base += "^2"
+        base += "[M+NH4]^2"
         parsed = parse_annotation(base)[0]
         assert parsed.series == 'b'
         assert parsed.position == 14
-        assert parsed.neutral_loss == ['-H2O', '-NH3', '[Foo]']
-        assert parsed.isotope == 2
-        assert parsed.charge == 2
-
-        base += "[M+NH4]"
-        parsed = parse_annotation(base)[0]
-        assert parsed.series == 'b'
-        assert parsed.position == 14
-        assert parsed.neutral_loss == ['-H2O', '-NH3', '[Foo]']
+        assert parsed.neutral_losses == ['-H2O', '-NH3', '[Foo]']
         assert parsed.isotope == 2
         assert parsed.charge == 2
         assert parsed.adducts == ["M", "NH4"]
@@ -52,7 +45,7 @@ class TestAnnotationParser(unittest.TestCase):
         parsed = parse_annotation(base)[0]
         assert parsed.series == 'b'
         assert parsed.position == 14
-        assert parsed.neutral_loss == ['-H2O', '-NH3', '[Foo]']
+        assert parsed.neutral_losses == ['-H2O', '-NH3', '[Foo]']
         assert parsed.isotope == 2
         assert parsed.charge == 2
         assert parsed.adducts == ["M", "NH4"]
@@ -63,7 +56,7 @@ class TestAnnotationParser(unittest.TestCase):
         parsed = parse_annotation(base)[0]
         assert parsed.series == 'b'
         assert parsed.position == 14
-        assert parsed.neutral_loss == ['-H2O', '-NH3', '[Foo]']
+        assert parsed.neutral_losses == ['-H2O', '-NH3', '[Foo]']
         assert parsed.isotope == 2
         assert parsed.charge == 2
         assert parsed.adducts == ["M", "NH4"]
@@ -76,7 +69,7 @@ class TestAnnotationParser(unittest.TestCase):
         parsed = parse_annotation(base)[0]
         assert parsed.series == 'b'
         assert parsed.position == 14
-        assert parsed.neutral_loss == ['-H2O', '-NH3', '[Foo]']
+        assert parsed.neutral_losses == ['-H2O', '-NH3', '[Foo]']
         assert parsed.isotope == 2
         assert parsed.charge == 2
         assert parsed.adducts == ["M", "NH4"]
@@ -89,7 +82,7 @@ class TestAnnotationParser(unittest.TestCase):
         parsed = parse_annotation(base)[0]
         assert parsed.series == 'b'
         assert parsed.position == 14
-        assert parsed.neutral_loss == ['-H2O', '-NH3', '[Foo]']
+        assert parsed.neutral_losses == ['-H2O', '-NH3', '[Foo]']
         assert parsed.isotope == 2
         assert parsed.charge == 2
         assert parsed.adducts == ["M", "NH4"]
@@ -114,11 +107,22 @@ class TestAnnotationParser(unittest.TestCase):
     def test_parse_external(self):
         base = "_{foobar}"
         parsed = parse_annotation(base)[0]
-        assert isinstance(parsed, ExternalIonAnnotation)
-        assert parsed.label == 'foobar'
+        assert isinstance(parsed, NamedCompoundIonAnnotation)
+        assert parsed.compound_name == 'foobar'
 
     def test_parse_formula(self):
         base = "f{C34H53N7O15}"
         parsed = parse_annotation(base)[0]
         assert isinstance(parsed, FormulaAnnotation)
         assert parsed.formula == "C34H53N7O15"
+
+    def test_parse_ordinal_with_sequence(self):
+        x, = parse_annotation("y1{{Glycan:Hex1}PEPTIDE}-H2O")
+        assert x.sequence == "{Glycan:Hex1}PEPTIDE"
+        assert x.neutral_losses == ["-H2O"]
+        assert isinstance(x, PeptideFragmentIonAnnotation)
+
+    def test_parse_reference(self):
+        x: ReferenceIonAnnotation
+        x, = parse_annotation("r[TMT126]")
+        assert x.reference == 'TMT126'
