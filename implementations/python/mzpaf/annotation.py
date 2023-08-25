@@ -271,7 +271,7 @@ class IonAnnotationBase(object, metaclass=_SeriesLabelSubclassRegisteringMeta):
         self.isotope = isotope
         self.adducts = adducts or []
         self.charge = charge
-        self.analyte_reference = analyte_reference
+        self.analyte_reference = str(analyte_reference) if analyte_reference is not None else None
         self.mass_error = mass_error
         self.confidence = confidence
         self.rest = rest
@@ -656,7 +656,7 @@ class NamedCompoundIonAnnotation(IonAnnotationBase):
 
     def _molecule_description(self):
         d = super()._molecule_description()
-        d['label'] = self.compound_name
+        d['compound_name'] = self.compound_name
         return d
 
     def _populate_from_dict(self, data):
