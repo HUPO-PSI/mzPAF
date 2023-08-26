@@ -1,0 +1,242 @@
+{
+  "Hex": {
+    "molecule_type": "monosaccharide",
+    "neutral_mass": 162.0528234185,
+    "chemical_formula": "C6H10O5"
+  },
+  "HexNAc": {
+    "molecule_type": "monosaccharide",
+    "neutral_mass": 203.07937251951,
+    "chemical_formula": "C8H13N1O5"
+  },
+  "dHex": {
+    "molecule_type": "monosaccharide",
+    "neutral_mass": 146.05790879894,
+    "chemical_formula": "C6H10O4"
+  },
+  "NeuAc": {
+    "molecule_type": "monosaccharide",
+    "neutral_mass": 291.09541650647,
+    "chemical_formula": "C11H17N1O8"
+  },
+  "NeuGc": {
+    "molecule_type": "monosaccharide",
+    "neutral_mass": 307.09033112603,
+    "chemical_formula": "C11H17N1O9"
+  },
+  "TMT126": {
+    "label_type": "TMT",
+    "molecule_type": "reporter",
+    "ion_mz": 126.127726
+  },
+  "TMT127N": {
+    "label_type": "TMT",
+    "molecule_type": "reporter",
+    "ion_mz": 127.124761
+  },
+  "TMT127C": {
+    "label_type": "TMT",
+    "molecule_type": "reporter",
+    "ion_mz": 127.131081
+  },
+  "TMT128N": {
+    "label_type": "TMT",
+    "molecule_type": "reporter",
+    "ion_mz": 128.128116
+  },
+  "TMT128C": {
+    "label_type": "TMT",
+    "molecule_type": "reporter",
+    "ion_mz": 128.134436
+  },
+  "TMT129N": {
+    "label_type": "TMT",
+    "molecule_type": "reporter",
+    "ion_mz": 129.131471
+  },
+  "TMT129C": {
+    "label_type": "TMT",
+    "molecule_type": "reporter",
+    "ion_mz": 129.13779
+  },
+  "TMT130N": {
+    "label_type": "TMT",
+    "molecule_type": "reporter",
+    "ion_mz": 130.134825
+  },
+  "TMT130C": {
+    "label_type": "TMT",
+    "molecule_type": "reporter",
+    "ion_mz": 130.141145
+  },
+  "TMT131N": {
+    "label_type": "TMT",
+    "molecule_type": "reporter",
+    "ion_mz": 131.13818
+  },
+  "TMT131C": {
+    "label_type": "TMT",
+    "molecule_type": "reporter",
+    "ion_mz": 131.1445
+  },
+  "TMT132N": {
+    "label_type": "TMT",
+    "molecule_type": "reporter",
+    "ion_mz": 132.141535
+  },
+  "TMT132C": {
+    "label_type": "TMT",
+    "molecule_type": "reporter",
+    "ion_mz": 122.147855
+  },
+  "TMT133N": {
+    "label_type": "TMT",
+    "molecule_type": "reporter",
+    "ion_mz": 133.14489
+  },
+  "TMT133C": {
+    "label_type": "TMT",
+    "molecule_type": "reporter",
+    "ion_mz": 133.15121
+  },
+  "TMT134N": {
+    "label_type": "TMT",
+    "molecule_type": "reporter",
+    "ion_mz": 134.148245
+  },
+  "TMT134C": {
+    "label_type": "TMT",
+    "molecule_type": "reporter",
+    "ion_mz": 134.154565
+  },
+  "TMT135N": {
+    "label_type": "TMT",
+    "molecule_type": "reporter",
+    "ion_mz": 135.1516
+  },
+  "TMT0nterm": {
+    "label_type": "TMTzero",
+    "molecule_type": "reporter+balance",
+    "ion_mz": 225.15975447
+  },
+  "TMT2nterm": {
+    "label_type": "TMT2plex",
+    "molecule_type": "reporter+balance",
+    "ion_mz": 226.16310947
+  },
+  "TMT6nterm": {
+    "label_type": "TMT6plex",
+    "molecule_type": "reporter+balance",
+    "ion_mz": 230.17020847
+  },
+  "TMTPROnterm": {
+    "label_type": "TMTPro",
+    "molecule_type": "reporter+balance",
+    "ion_mz": 305.21442247
+  },
+  "iTRAQ113": {
+    "label_type": "iTRAQ",
+    "molecule_type": "reporter",
+    "ion_mz": 113.1078
+  },
+  "iTRAQ114": {
+    "label_type": "iTRAQ",
+    "molecule_type": "reporter",
+    "ion_mz": 114.1112
+  },
+  "iTRAQ115": {
+    "label_type": "iTRAQ",
+    "molecule_type": "reporter",
+    "ion_mz": 115.1082
+  },
+  "iTRAQ116": {
+    "label_type": "iTRAQ",
+    "molecule_type": "reporter",
+    "ion_mz": 116.1116
+  },
+  "iTRAQ117": {
+    "label_type": "iTRAQ",
+    "molecule_type": "reporter",
+    "ion_mz": 117.1149
+  },
+  "iTRAQ118": {
+    "label_type": "iTRAQ",
+    "molecule_type": "reporter",
+    "ion_mz": 118.112
+  },
+  "iTRAQ119": {
+    "label_type": "iTRAQ",
+    "molecule_type": "reporter",
+    "ion_mz": 119.1153
+  },
+  "iTRAQ121": {
+    "label_type": "iTRAQ",
+    "molecule_type": "reporter",
+    "ion_mz": 121.122
+  },
+  "iTRAQ4nterm": {
+    "label_type": "iTRAQ4plex",
+    "molecule_type": "reporter+balance",
+    "ion_mz": 145.10933947
+  },
+  "iTRAQ8nterm": {
+    "label_type": "iTRAQ8plex",
+    "molecule_type": "reporter+balance",
+    "ion_mz": 305.21263647
+  },
+  "TMT126-ETD": {
+    "label_type": "TMT",
+    "molecule_type": "reporter",
+    "ion_mz": 114.127725
+  },
+  "TMT127N-ETD": {
+    "label_type": "TMT",
+    "molecule_type": "reporter",
+    "ion_mz": 115.12476
+  },
+  "TMT127C-ETD": {
+    "label_type": "TMT",
+    "molecule_type": "reporter",
+    "ion_mz": 114.127725
+  },
+  "TMT128N-ETD": {
+    "label_type": "TMT",
+    "molecule_type": "reporter",
+    "ion_mz": 115.12476
+  },
+  "TMT128C-ETD": {
+    "label_type": "TMT",
+    "molecule_type": "reporter",
+    "ion_mz": 116.134433
+  },
+  "TMT129N-ETD": {
+    "label_type": "TMT",
+    "molecule_type": "reporter",
+    "ion_mz": 117.131468
+  },
+  "TMT129C-ETD": {
+    "label_type": "TMT",
+    "molecule_type": "reporter",
+    "ion_mz": 116.134433
+  },
+  "TMT130N-ETD": {
+    "label_type": "TMT",
+    "molecule_type": "reporter",
+    "ion_mz": 117.131468
+  },
+  "TMT130C-ETD": {
+    "label_type": "TMT",
+    "molecule_type": "reporter",
+    "ion_mz": 118.141141
+  },
+  "TMT131N-ETD": {
+    "label_type": "TMT",
+    "molecule_type": "reporter",
+    "ion_mz": 119.138176
+  },
+  "TMT131C-ETD": {
+    "label_type": "TMT",
+    "molecule_type": "reporter",
+    "ion_mz": 118.141141
+  }
+}

@@ -1,0 +1,55 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "HUPO-PSI mzSpecLib reference molecule and ion list",
+    "description": "Describe reference molecules or ions found in spectral libraries",
+    "type": "object",
+    "patternProperties": {
+        ".{1,}": {
+            "$ref": "#/definitions/molecule"
+        }
+    },
+    "definitions": {
+        "molecule": {
+            "type": "object",
+            "description": "A single molecule that may be present as a reporter ion or signature ion, or be a component of a neutral loss.",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "The formal name for this molecule by which it should be referenced"
+                },
+                "neutral_mass": {
+                    "type": "number",
+                    "description": "The neutral mass of the molecule not including any charge or charge carrier"
+                },
+                "molecule_type": {
+                    "type": "string",
+                    "description": "A categorical label for this molecule",
+                    "examples": [
+                        "monosaccharide",
+                        "reporter",
+                        "reporter+balance"
+                    ]
+                },
+                "ion_mz": {
+                    "type": "number",
+                    "description": "The m/z of the molecule if it is expected to be reasonably different from the uncharged version"
+                },
+                "chemical_formula": {
+                    "type": "string",
+                    "description": "The elemental formula of the neutral molecule"
+                },
+                "ion_chemical_formula": {
+                    "type": "string",
+                    "description": "The chemical formula of the charged molecule"
+                },
+                "references": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "An array of sources and references describing this entity"
+                }
+            }
+        }
+    }
+}
