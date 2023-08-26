@@ -5,6 +5,7 @@ from setuptools import setup, find_packages
 setup(
     name='mzpaf',
     packages=find_packages(exclude=('tests',)),
+    requires=["pyteomics"],
     version='0.1.0-alpha',
     description='HUPO-PSI Peptide peak annotation format',
     classifiers=[
