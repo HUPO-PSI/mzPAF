@@ -8,7 +8,7 @@
   "properties": {
     "analyte_reference": {
       "description": "Label of analyte to which this annotation belongs",
-      "oneOf": [{ "type": "string" }, { "type": "null" }],
+      "oneOf": [{ "type": "integer" }, { "type": "null" }],
       "default": null
     },
     "molecule_description": {

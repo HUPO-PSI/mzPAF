@@ -93,7 +93,7 @@ class TestAnnotationParser(unittest.TestCase):
         assert parsed.charge == 2
         assert parsed.adducts == ["M", "NH4"]
         assert parsed.mass_error == MassError(0.5, 'ppm')
-        assert parsed.analyte_reference == '2'
+        assert parsed.analyte_reference == 2
         assert parsed == base
         self._matches_schema(parsed)
 
@@ -107,7 +107,7 @@ class TestAnnotationParser(unittest.TestCase):
         assert parsed.charge == 2
         assert parsed.adducts == ["M", "NH4"]
         assert parsed.mass_error == MassError(0.5, 'ppm')
-        assert parsed.analyte_reference == '2'
+        assert parsed.analyte_reference == 2
         assert parsed.confidence == 0.05
         assert parsed == base
         self._matches_schema(parsed)
@@ -121,7 +121,7 @@ class TestAnnotationParser(unittest.TestCase):
         assert parsed.charge == 2
         assert parsed.adducts == ["M", "NH4"]
         assert parsed.mass_error == MassError(0.5, 'ppm')
-        assert parsed.analyte_reference == '2'
+        assert parsed.analyte_reference == 2
         assert parsed.confidence == 0.05
         assert parsed.is_auxiliary
         assert parsed == base

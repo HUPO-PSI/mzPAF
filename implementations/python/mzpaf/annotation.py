@@ -271,7 +271,7 @@ class IonAnnotationBase(object, metaclass=_SeriesLabelSubclassRegisteringMeta):
         self.isotope = isotope
         self.adducts = adducts or []
         self.charge = charge
-        self.analyte_reference = str(analyte_reference) if analyte_reference is not None else None
+        self.analyte_reference = int(analyte_reference) if analyte_reference is not None else None
         self.mass_error = mass_error
         self.confidence = confidence
         self.rest = rest
@@ -361,8 +361,8 @@ class IonAnnotationBase(object, metaclass=_SeriesLabelSubclassRegisteringMeta):
                 if (value is not None) or not exclude_missing:
                     d[key] = value
         d['molecule_description'] = self._molecule_description()
-        if d['analyte_reference'] is None:
-            d['analyte_reference'] = '1'
+        # if d['analyte_reference'] is None:
+        #     d['analyte_reference'] =
         return d
 
     def _populate_from_dict(self, data) -> 'IonAnnotationBase':
@@ -441,8 +441,8 @@ class PeptideFragmentIonAnnotation(IonAnnotationBase, _HasSequenceMixin):
         d.update({
             "series": self.series,
             "position": self.position,
-            "sequence": self.sequence
         })
+        d['sequence'] = self.sequence
         return d
 
     def _populate_from_dict(self, data) -> IonAnnotationBase:
@@ -450,7 +450,7 @@ class PeptideFragmentIonAnnotation(IonAnnotationBase, _HasSequenceMixin):
         descr = data['molecule_description']
         self.series = descr['series']
         self.position = descr['position']
-        self.sequence = descr['sequence']
+        self.sequence = descr.get('sequence')
         return self
 
 
@@ -516,7 +516,7 @@ class InternalPeptideFragmentIonAnnotation(IonAnnotationBase, _HasSequenceMixin)
         descr = data['molecule_description']
         self.start_position = descr['start_position']
         self.end_position = descr['end_position']
-        self.sequence = descr['sequence']
+        self.sequence = descr.get('sequence')
         return self
 
 
