@@ -1,51 +1,7 @@
-|             | molecule_type    |   neutral_mass | chemical_formula   | label_type   |   ion_mz |
-|:------------|:-----------------|---------------:|:-------------------|:-------------|---------:|
-| Hex         | monosaccharide   |        162.053 | C6H10O5            | nan          |  nan     |
-| HexNAc      | monosaccharide   |        203.079 | C8H13N1O5          | nan          |  nan     |
-| dHex        | monosaccharide   |        146.058 | C6H10O4            | nan          |  nan     |
-| NeuAc       | monosaccharide   |        291.095 | C11H17N1O8         | nan          |  nan     |
-| NeuGc       | monosaccharide   |        307.09  | C11H17N1O9         | nan          |  nan     |
-| TMT126      | reporter         |        nan     | nan                | TMT          |  126.128 |
-| TMT127N     | reporter         |        nan     | nan                | TMT          |  127.125 |
-| TMT127C     | reporter         |        nan     | nan                | TMT          |  127.131 |
-| TMT128N     | reporter         |        nan     | nan                | TMT          |  128.128 |
-| TMT128C     | reporter         |        nan     | nan                | TMT          |  128.134 |
-| TMT129N     | reporter         |        nan     | nan                | TMT          |  129.131 |
-| TMT129C     | reporter         |        nan     | nan                | TMT          |  129.138 |
-| TMT130N     | reporter         |        nan     | nan                | TMT          |  130.135 |
-| TMT130C     | reporter         |        nan     | nan                | TMT          |  130.141 |
-| TMT131N     | reporter         |        nan     | nan                | TMT          |  131.138 |
-| TMT131C     | reporter         |        nan     | nan                | TMT          |  131.144 |
-| TMT132N     | reporter         |        nan     | nan                | TMT          |  132.142 |
-| TMT132C     | reporter         |        nan     | nan                | TMT          |  122.148 |
-| TMT133N     | reporter         |        nan     | nan                | TMT          |  133.145 |
-| TMT133C     | reporter         |        nan     | nan                | TMT          |  133.151 |
-| TMT134N     | reporter         |        nan     | nan                | TMT          |  134.148 |
-| TMT134C     | reporter         |        nan     | nan                | TMT          |  134.155 |
-| TMT135N     | reporter         |        nan     | nan                | TMT          |  135.152 |
-| TMTzero     | reporter+balance |        224.152 | nan                | TMTzero      |  225.16  |
-| TMTpro_zero | reporter+balance |        295.19  | nan                | TMTpro_zero  |  296.197 |
-| TMT2plex    | reporter+balance |        225.156 | nan                | TMT2plex     |  226.163 |
-| TMT6plex    | reporter+balance |        229.163 | nan                | TMT6plex     |  230.17  |
-| TMTpro      | reporter+balance |        304.207 | nan                | TMTpro       |  305.214 |
-| iTRAQ113    | reporter         |        nan     | nan                | iTRAQ        |  113.108 |
-| iTRAQ114    | reporter         |        nan     | nan                | iTRAQ        |  114.111 |
-| iTRAQ115    | reporter         |        nan     | nan                | iTRAQ        |  115.108 |
-| iTRAQ116    | reporter         |        nan     | nan                | iTRAQ        |  116.112 |
-| iTRAQ117    | reporter         |        nan     | nan                | iTRAQ        |  117.115 |
-| iTRAQ118    | reporter         |        nan     | nan                | iTRAQ        |  118.112 |
-| iTRAQ119    | reporter         |        nan     | nan                | iTRAQ        |  119.115 |
-| iTRAQ121    | reporter         |        nan     | nan                | iTRAQ        |  121.122 |
-| iTRAQ4plex  | reporter+balance |        144.102 | nan                | iTRAQ4plex   |  145.109 |
-| iTRAQ8plex  | reporter+balance |        304.205 | nan                | iTRAQ8plex   |  305.213 |
-| TMT126-ETD  | reporter         |        nan     | nan                | TMT          |  114.128 |
-| TMT127N-ETD | reporter         |        nan     | nan                | TMT          |  115.125 |
-| TMT127C-ETD | reporter         |        nan     | nan                | TMT          |  114.128 |
-| TMT128N-ETD | reporter         |        nan     | nan                | TMT          |  115.125 |
-| TMT128C-ETD | reporter         |        nan     | nan                | TMT          |  116.134 |
-| TMT129N-ETD | reporter         |        nan     | nan                | TMT          |  117.131 |
-| TMT129C-ETD | reporter         |        nan     | nan                | TMT          |  116.134 |
-| TMT130N-ETD | reporter         |        nan     | nan                | TMT          |  117.131 |
-| TMT130C-ETD | reporter         |        nan     | nan                | TMT          |  118.141 |
-| TMT131N-ETD | reporter         |        nan     | nan                | TMT          |  119.138 |
-| TMT131C-ETD | reporter         |        nan     | nan                | TMT          |  118.141 |
+|                  | Hex            | HexNAc          | dHex            | NeuAc           | NeuGc           | TMT126     | TMT127N    | TMT127C    | TMT128N    | TMT128C    | TMT129N    | TMT129C   | TMT130N    | TMT130C    | TMT131N   | TMT131C   | TMT132N    | TMT132C    | TMT133N   | TMT133C   | TMT134N    | TMT134C    | TMT135N   | TMTzero          | TMTpro_zero      | TMT2plex         | TMT6plex         | TMTpro           | iTRAQ113   | iTRAQ114   | iTRAQ115   | iTRAQ116   | iTRAQ117   | iTRAQ118   | iTRAQ119   | iTRAQ121   | iTRAQ4plex       | iTRAQ8plex       | TMT126-ETD   | TMT127N-ETD   | TMT127C-ETD   | TMT128N-ETD   | TMT128C-ETD   | TMT129N-ETD   | TMT129C-ETD   | TMT130N-ETD   | TMT130C-ETD   | TMT131N-ETD   | TMT131C-ETD   |
+|:-----------------|:---------------|:----------------|:----------------|:----------------|:----------------|:-----------|:-----------|:-----------|:-----------|:-----------|:-----------|:----------|:-----------|:-----------|:----------|:----------|:-----------|:-----------|:----------|:----------|:-----------|:-----------|:----------|:-----------------|:-----------------|:-----------------|:-----------------|:-----------------|:-----------|:-----------|:-----------|:-----------|:-----------|:-----------|:-----------|:-----------|:-----------------|:-----------------|:-------------|:--------------|:--------------|:--------------|:--------------|:--------------|:--------------|:--------------|:--------------|:--------------|:--------------|
+| molecule_type    | monosaccharide | monosaccharide  | monosaccharide  | monosaccharide  | monosaccharide  | reporter   | reporter   | reporter   | reporter   | reporter   | reporter   | reporter  | reporter   | reporter   | reporter  | reporter  | reporter   | reporter   | reporter  | reporter  | reporter   | reporter   | reporter  | reporter+balance | reporter+balance | reporter+balance | reporter+balance | reporter+balance | reporter   | reporter   | reporter   | reporter   | reporter   | reporter   | reporter   | reporter   | reporter+balance | reporter+balance | reporter     | reporter      | reporter      | reporter      | reporter      | reporter      | reporter      | reporter      | reporter      | reporter      | reporter      |
+| neutral_mass     | 162.0528234185 | 203.07937251951 | 146.05790879894 | 291.09541650647 | 307.09033112603 |            |            |            |            |            |            |           |            |            |           |           |            |            |           |           |            |            |           | 224.152478       | 295.189592       | 225.155833       | 229.162932       | 304.207146       |            |            |            |            |            |            |            |            | 144.102063       | 304.20536        |              |               |               |               |               |               |               |               |               |               |               |
+| chemical_formula | C6H10O5        | C8H13N1O5       | C6H10O4         | C11H17N1O8      | C11H17N1O9      |            |            |            |            |            |            |           |            |            |           |           |            |            |           |           |            |            |           |                  |                  |                  |                  |                  |            |            |            |            |            |            |            |            |                  |                  |              |               |               |               |               |               |               |               |               |               |               |
+| label_type       |                |                 |                 |                 |                 | TMT        | TMT        | TMT        | TMT        | TMT        | TMT        | TMT       | TMT        | TMT        | TMT       | TMT       | TMT        | TMT        | TMT       | TMT       | TMT        | TMT        | TMT       | TMTzero          | TMTpro_zero      | TMT2plex         | TMT6plex         | TMTpro           | iTRAQ      | iTRAQ      | iTRAQ      | iTRAQ      | iTRAQ      | iTRAQ      | iTRAQ      | iTRAQ      | iTRAQ4plex       | iTRAQ8plex       | TMT          | TMT           | TMT           | TMT           | TMT           | TMT           | TMT           | TMT           | TMT           | TMT           | TMT           |
+| ion_mz           |                |                 |                 |                 |                 | 126.127726 | 127.124761 | 127.131081 | 128.128116 | 128.134436 | 129.131471 | 129.13779 | 130.134825 | 130.141145 | 131.13818 | 131.1445  | 132.141535 | 122.147855 | 133.14489 | 133.15121 | 134.148245 | 134.154565 | 135.1516  | 225.15975447     | 296.1968685      | 226.16310947     | 230.17020847     | 305.21442247     | 113.1078   | 114.1112   | 115.1082   | 116.1116   | 117.1149   | 118.112    | 119.1153   | 121.122    | 145.10933947     | 305.21263647     | 114.127725   | 115.12476     | 114.127725    | 115.12476     | 116.134433    | 117.131468    | 116.134433    | 117.131468    | 118.141141    | 119.138176    | 118.141141    |
