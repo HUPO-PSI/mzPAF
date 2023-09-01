@@ -2,8 +2,12 @@
 
 The mzPAF specification uses these files as auxiliary reference data so that enumerated values can be extended without altering the specification document.
 
-- IsobaricLabelIons.md - Easily human readable list of isobaric label ions that might be annotated or used as neutral losses
-- IsobaricLabelIons.json - Easily software parsable list of isobaric label ions that might be annotated or used as neutral losses, along with masses and other metadata
+- reference_molecules.json - Easily software parsable list of "reference molecules" often seen in peptide fragmentation spectra, but
+  not normal peptide fragments, including isobaric labeling reagent related molecules, monosaccharides, nucleotides, etc. These
+  molecules may be inidividual charged ions (typically protonated), or may be used as neutral losses as appropriate.
 
-- NeutralLossGroups.md - Easily human readable list of neutral losses that might be used for annotation
-- IsobaricLabelIons.json - Easily software parsable list of neutral losses that might be used for annotation, along with masses and other metadata
+- reference_molecules.md - Human-readable markdown tabular version of reference_molecules.json
+
+- reference_molecule_schema.json - JSON schema for reference_molecules.json
+
+- reference_mol_to_md.py - Python script to transform reference_molecules.json into a markdown table
