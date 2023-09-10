@@ -1,0 +1,2 @@
+recursive-include mzpaf/data *.json
+include data/*.json

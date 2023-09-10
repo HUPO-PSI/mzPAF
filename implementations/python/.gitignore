@@ -1,8 +1,8 @@
 *.pyc
-build/*
+build/
 .coverage
 *.egg-info
-dist/*
+dist/
 Untitled*
 .ipynb_checkpoints
 .pytest_cache
