@@ -7,11 +7,14 @@ and serializing.
 import re
 from sys import intern
 from typing import Any, List, Optional, Pattern, Dict, Tuple, Union
+import warnings
 
 try:
     from pyteomics.proforma import ProForma
 except ImportError:
     ProForma = None
+
+from .reference import ReferenceMolecule
 
 JSONDict = Dict[str, Union[List, Dict, int, float, str, bool, None]]
 
@@ -602,21 +605,40 @@ class ReferenceIonAnnotation(IonAnnotationBase):
         The reference identifier.
     """
 
-    __slots__ = ("reference", )
+    __slots__ = ("_reference", "reference_molecule")
 
     series_label = "reference"
     _molecule_description_fields = {
         "reference": "The molecule refernce identifier"
     }
 
+    _reference: str
     reference: str
+    reference_molecule: Optional[ReferenceMolecule]
 
     def __init__(self, series, reference, neutral_losses=None, isotope=None, adducts=None, charge=None,
                  analyte_reference=None, mass_error=None, confidence=None, rest=None, is_auxiliary=None):
         super(ReferenceIonAnnotation, self).__init__(
             series, neutral_losses, isotope, adducts, charge, analyte_reference, mass_error, confidence,
             rest, is_auxiliary)
+        self._reference = None
         self.reference = reference
+
+    @property
+    def reference(self) -> str:
+        return self._reference
+
+    @reference.setter
+    def reference(self, value):
+        self._reference = value
+        if value is not None:
+            try:
+                self.reference_molecule = ReferenceMolecule.get(value)
+            except KeyError:
+                warnings.warn(f"Could not find a reference entry for {value}")
+                self.reference_molecule = None
+        else:
+            self.reference_molecule = None
 
     def _format_ion(self):
         return f"r[{self.reference}]"

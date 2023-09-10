@@ -17,6 +17,12 @@
                     "type": "string",
                     "description": "The formal name for this molecule by which it should be referenced"
                 },
+                "cv_term": {
+                    "type": "array",
+                    "items": {
+                        "type":"string"
+                    }
+                },
                 "neutral_mass": {
                     "type": "number",
                     "description": "The neutral mass of the molecule not including any charge or charge carrier"
