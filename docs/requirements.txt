@@ -1,0 +1,8 @@
+sphinx
+pydata-sphinx-theme
+numpydoc
+sphinx_click
+myst-parser
+sphinx-autobuild
+jsonschema2md
+pandas
