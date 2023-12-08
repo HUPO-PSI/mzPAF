@@ -8,6 +8,6 @@
    :glob:
 
    Home <self>
-   specification/index
-   implementations/index
-   contributing
+   Specification <specification/index>
+   Implementations <implementations/index>
+   Contributing <contributing>
