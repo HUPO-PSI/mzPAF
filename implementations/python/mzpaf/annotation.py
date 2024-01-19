@@ -10,6 +10,10 @@ from typing import Any, List, Optional, Pattern, Dict, Tuple, Union
 import warnings
 
 try:
+    from pyteomics.mass import Composition
+except ImportError:
+    Composition = None
+try:
     from pyteomics.proforma import ProForma
 except ImportError:
     ProForma = None
@@ -844,12 +848,37 @@ def int_or_sign(string: str) -> int:
 
 
 class AnnotationStringParser(object):
+    """
+    An annotation string parser using a specific parser pattern.
+
+    This class organizes the parsing of common and type-specific components of a
+    string into one or more peak annotations.
+
+    Instances are :class:`Callable`, with :obj:`parse_annotation` being the reference
+    parser.
+    """
+
     pattern: Pattern
 
     def __init__(self, pattern):
         self.pattern = pattern
 
-    def __call__(self, annotation_string: str, *, wrap_errors=False, **kwargs) -> List[IonAnnotationBase]:
+    def __call__(self, annotation_string: str, *, wrap_errors: bool=False, **kwargs) -> List[IonAnnotationBase]:
+        """
+        Parse a string into one or more :class:`IonAnnotationBase` instances.
+
+        Parameters
+        ----------
+        annotation_string : str
+            The string to be parsed
+        wrap_errors : bool, optional
+            Whether or not to capture parsing errors as :class:`InvalidAnnotation` or not. Defaults to :const:`False`.
+
+        Returns
+        -------
+        list[:class:`IonAnnotationBase`] :
+            The annotations parsed
+        """
         try:
             return self.parse_annotation(annotation_string, **kwargs)
         except ValueError as err:
@@ -1073,4 +1102,5 @@ class AnnotationStringParser(object):
             mass_error, confidence)
 
 
+#: The reference parser
 parse_annotation = AnnotationStringParser(annotation_pattern)
