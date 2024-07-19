@@ -14,9 +14,10 @@ try:
 except ImportError:
     Composition = None
 try:
-    from pyteomics.proforma import ProForma
+    from pyteomics.proforma import (ProForma, FormulaModification)
 except ImportError:
     ProForma = None
+    FormulaModification = None
 
 from .reference import ReferenceMolecule
 
@@ -34,7 +35,7 @@ annotation_pattern = re.compile(r"""
         (?P<reference_label>[^\]]+)
     \])
    ))|
-   (?:f\{(?P<formula>[A-Za-z0-9]+)\})|
+   (?:f\{(?P<formula>[A-Za-z0-9\[\]]+)\})|
    (?:_\{
     (?P<named_compound>[^\{\}\s,/]+)
     \})|
@@ -722,6 +723,11 @@ class FormulaAnnotation(IonAnnotationBase):
         descr = data['molecule_description']
         self.formula = descr['formula']
         return self
+
+    def to_composition(self) -> "Composition":
+        if Composition is None:
+            raise ImportError("Cannot use `to_composition` without `pyteomics`")
+        return FormulaModification(self.formula).resolve()['composition']
 
 
 class SMILESAnnotation(IonAnnotationBase):
