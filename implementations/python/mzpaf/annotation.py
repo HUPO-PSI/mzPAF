@@ -259,7 +259,7 @@ class IonAnnotationBase(object, metaclass=_SeriesLabelSubclassRegisteringMeta):
     isotope: int
     adducts: List
     charge: int
-    analyte_reference: str
+    analyte_reference: Optional[int]
     mass_error: MassError
     confidence: float
     rest: Any
