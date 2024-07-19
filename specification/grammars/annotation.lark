@@ -78,7 +78,7 @@ series_named_compound : "_" "{" CHARACTER+ "}"
 
 series_smiles : "s" "{" SMILES+ "}"
 
-series_unknown : "?" NUMBER*
+series_unknown : "?" ORDINAL?
 
 ion_series : series_peptide | series_immonium | series_internal | series_reporter | series_formula | series_named_compound | series_smiles | series_unknown
 
