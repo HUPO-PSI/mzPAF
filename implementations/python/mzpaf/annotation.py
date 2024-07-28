@@ -23,7 +23,8 @@ from .reference import ReferenceMolecule
 
 JSONDict = Dict[str, Union[List, Dict, int, float, str, bool, None]]
 
-annotation_pattern = re.compile(r"""
+annotation_pattern = re.compile(
+    r"""
 ^(?P<is_auxiliary>&)?
    (?:(?P<analyte_reference>\d+)@)?
    (?:(?:(?P<series>[axbycz]\.?)(?P<ordinal>\d+)(?:\{(?P<sequence_ordinal>.+)\})?)|
@@ -46,7 +47,7 @@ annotation_pattern = re.compile(r"""
     (?:(?:[A-Z][A-Za-z0-9]*)|
         (?:\[
             (?:
-                (?:[A-Za-z0-9:\.]+)
+                (?:[A-Za-z0-9:\.]+)(?:\[(?:[A-Za-z0-9\.:\-\ ]+)\])?
             )
             \])
     )
@@ -56,7 +57,9 @@ annotation_pattern = re.compile(r"""
 (?:\^(?P<charge>[+-]?\d+))?
 (?:/(?P<mass_error>[+-]?\d+(?:\.\d+)?)(?P<mass_error_unit>ppm)?)?
 (?:\*(?P<confidence>\d*(?:\.\d+)?))?
-""", re.X)
+""",
+    re.X,
+)
 
 # At the time of first writing, this pattern could be translated into the equivalent
 # ECMAScript compliant regex:
@@ -943,6 +946,22 @@ class AnnotationStringParser(object):
         return confidence
 
     def parse_annotation(self, annotation_string: str, **kwargs) -> List[IonAnnotationBase]:
+        """
+        Parse a string into one or more :class:`IonAnnotationBase` instances.
+
+        Parameters
+        ----------
+        annotation_string : str
+            The string to be parsed
+        **kwargs
+            Passed to the :meth:`_dispatch` which in turn creates :class:`IonAnnotationBase`
+            instances
+
+        Returns
+        -------
+        list[:class:`IonAnnotationBase`] :
+            The annotations parsed
+        """
         if not annotation_string:
             return []
 

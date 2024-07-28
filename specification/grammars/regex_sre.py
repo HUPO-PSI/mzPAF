@@ -1,6 +1,7 @@
 import re
 
-annotation_pattern = re.compile(r"""
+annotation_pattern = re.compile(
+    r"""
 ^(?P<is_auxiliary>&)?
    (?:(?P<analyte_reference>\d+)@)?
    (?:(?:(?P<series>[axbycz]\.?)(?P<ordinal>\d+)(?:\{(?P<sequence_ordinal>.+)\})?)|
@@ -12,7 +13,7 @@ annotation_pattern = re.compile(r"""
         (?P<reference_label>[^\]]+)
     \])
    ))|
-   (?:f\{(?P<formula>[A-Za-z0-9]+)\})|
+   (?:f\{(?P<formula>[A-Za-z0-9\[\]]+)\})|
    (?:_\{
     (?P<named_compound>[^\{\}\s,/]+)
     \})|
@@ -23,7 +24,7 @@ annotation_pattern = re.compile(r"""
     (?:(?:[A-Z][A-Za-z0-9]*)|
         (?:\[
             (?:
-                (?:[A-Za-z0-9:\.]+)
+                (?:[A-Za-z0-9:\.]+)(?:\[(?:[A-Za-z0-9\.:\-\ ]+)\])?
             )
             \])
     )
@@ -33,4 +34,6 @@ annotation_pattern = re.compile(r"""
 (?:\^(?P<charge>[+-]?\d+))?
 (?:/(?P<mass_error>[+-]?\d+(?:\.\d+)?)(?P<mass_error_unit>ppm)?)?
 (?:\*(?P<confidence>\d*(?:\.\d+)?))?
-""", re.X)
+""",
+    re.X,
+)
