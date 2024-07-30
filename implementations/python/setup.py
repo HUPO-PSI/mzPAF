@@ -14,6 +14,7 @@ setup(
             "sphinx_click",
             "myst-parser",
             "sphinx-autobuild",
+            "pydata-sphinx-theme",
         ],
     ),
     version="0.1.0-alpha",
