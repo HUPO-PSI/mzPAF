@@ -84,7 +84,7 @@ AnalyteIdentifier = Group(
 
 PeptideIon = Group(
     Sequence(
-        Choice(0, *list(map(Terminal, ("a", "b", "c", "x", "y", "z")))),
+        Choice(0, *list(map(Terminal, ("a", "b", "c", "x", "y", "z", "d", "v", "w")))),
         NonTerminal("ORDINAL"),
         Optional(
             Sequence(
