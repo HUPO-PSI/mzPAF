@@ -64,6 +64,11 @@ class ReferenceMolecule:
             cls._load_registry()
         return cls._registry[name]
 
+    @classmethod
+    def is_reference(cls, name: str) -> bool:
+        if cls._registry is None:
+            cls._load_registry()
+        return name in cls._registry
 
 
 def load_json(stream) -> Dict[str, ReferenceMolecule]:

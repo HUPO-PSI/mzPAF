@@ -1,29 +1,4 @@
 {
-  "Hex": {
-    "molecule_type": "monosaccharide",
-    "neutral_mass": 162.0528234185,
-    "chemical_formula": "C6H10O5"
-  },
-  "HexNAc": {
-    "molecule_type": "monosaccharide",
-    "neutral_mass": 203.07937251951,
-    "chemical_formula": "C8H13N1O5"
-  },
-  "dHex": {
-    "molecule_type": "monosaccharide",
-    "neutral_mass": 146.05790879894,
-    "chemical_formula": "C6H10O4"
-  },
-  "NeuAc": {
-    "molecule_type": "monosaccharide",
-    "neutral_mass": 291.09541650647,
-    "chemical_formula": "C11H17N1O8"
-  },
-  "NeuGc": {
-    "molecule_type": "monosaccharide",
-    "neutral_mass": 307.09033112603,
-    "chemical_formula": "C11H17N1O9"
-  },
   "TMT126": {
     "label_type": "TMT",
     "molecule_type": "reporter",
