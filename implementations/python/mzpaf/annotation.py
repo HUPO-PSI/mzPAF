@@ -5,10 +5,10 @@ This reference implementation includes parsing the compact text format
 and serializing.
 """
 import re
-from enum import Enum, Flag, auto as enauto
-from dataclasses import dataclass, field
+from enum import Flag, auto as enauto
+from dataclasses import dataclass
 from sys import intern
-from typing import Any, List, Optional, Pattern, Dict, Tuple, Union, NamedTuple
+from typing import Any, List, Optional, Pattern, Dict, Tuple, Union
 import warnings
 
 try:
@@ -155,6 +155,8 @@ def combine_formula(tokens: List[str], leading_sign: bool = False) -> str:
 
 
 class NeutralNameType(Flag):
+    """:class:`NeutralName` classification"""
+
     Reference = enauto()
     Formula = enauto()
     BracedName = enauto()
@@ -163,6 +165,20 @@ class NeutralNameType(Flag):
 
 @dataclass
 class NeutralName(object):
+    """
+    Describe an entity that may appear in the neutral loss list.
+
+    Attributes
+    ----------
+    name :  str
+        The name of the neutral loss which may be a formula or braced name
+        denoting either a "reference molecule" or a UNIMOD name
+    delta_type : :class:`NeutralNameType`
+        The kind of thing :attr:`name` denotes
+    coefficient : int
+        A signed multiplicative coefficient of the entity
+    """
+
     name: str
     delta_type: NeutralNameType = NeutralNameType.Unknown
     coefficient: int = 1
@@ -170,7 +186,7 @@ class NeutralName(object):
     def __post_init__(self):
         self.delta_type = self._infer_type()
 
-    def format_name(self, leading_sign: bool=True) -> str:
+    def format_name(self, leading_sign: bool = True) -> str:
         name = self.name
         if self.delta_type == NeutralNameType.Reference or self.delta_type == NeutralNameType.BracedName:
             name = f"[{name}]"
@@ -206,6 +222,12 @@ class NeutralName(object):
             return NeutralNameType.Formula
 
     def mass(self) -> float:
+        """
+        Calculcate the neutral mass.
+
+        This may involve loading the UNIMOD controlled vocabulary from a remote
+        source. See :mod:`pyteomics.proforma` for more information.
+        """
         mass: float = 0.0
         if self.delta_type == NeutralNameType.Formula:
             mass = FormulaModification(self.name).mass
@@ -229,6 +251,10 @@ class NeutralName(object):
 
     @classmethod
     def parse(cls, string: str) -> List['NeutralName']:
+        """
+        Parse a string of expressions into a list of :class:`NeutralName` using the tokenizer
+        from the main parser.
+        """
         if not string:
             return []
         names = []
@@ -243,6 +269,10 @@ class NeutralName(object):
 
     @classmethod
     def combine(cls, tokens: List["NeutralName"], leading_sign: bool) -> str:
+        """
+        Combine a list of :class:`NeutralName` into an expression string that is compatible
+        with :meth:`parse`.
+        """
         if not tokens:
             return ""
         if tokens[0].coefficient >= 0 and leading_sign:
@@ -254,11 +284,12 @@ class NeutralName(object):
         return "".join(out)
 
 
-
 class MassError(object):
     """
     Represent the mass error of a peak annotation.
 
+    Attributes
+    ----------
     unit : str
         The unit of the mass error, may be Da (daltons) or ppm (parts-per-million)
     mass_error : float
@@ -473,7 +504,7 @@ class IonAnnotationBase(object, metaclass=_SeriesLabelSubclassRegisteringMeta):
         -------
         dict
         """
-        #TODO: When neutral losses and adducts are formalized types, convert to string/JSON here
+        # TODO: When neutral losses and adducts are formalized types, convert to string/JSON here
         d = {}
         skips = ('series', 'rest', 'is_auxiliary', 'neutral_losses')
         for key in IonAnnotationBase.__slots__:
@@ -492,7 +523,7 @@ class IonAnnotationBase(object, metaclass=_SeriesLabelSubclassRegisteringMeta):
         return d
 
     def _populate_from_dict(self, data) -> 'IonAnnotationBase':
-        #TODO: When neutral losses and adducts are formalized types, parse from string here
+        # TODO: When neutral losses and adducts are formalized types, parse from string here
         for key, value in data.items():
             if key == 'molecule_description':
                 continue
@@ -997,7 +1028,7 @@ class AnnotationStringParser(object):
     def __init__(self, pattern):
         self.pattern = pattern
 
-    def __call__(self, annotation_string: str, *, wrap_errors: bool=False, **kwargs) -> List[IonAnnotationBase]:
+    def __call__(self, annotation_string: str, *, wrap_errors: bool = False, **kwargs) -> List[IonAnnotationBase]:
         """
         Parse a string into one or more :class:`IonAnnotationBase` instances.
 
