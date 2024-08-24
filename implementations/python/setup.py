@@ -17,7 +17,7 @@ setup(
             "pydata-sphinx-theme",
         ],
     ),
-    version="0.1.0-alpha",
+    version="0.2.0-alpha",
     description="HUPO-PSI Peptide peak annotation format",
     classifiers=[
         "Intended Audience :: Science/Research",
