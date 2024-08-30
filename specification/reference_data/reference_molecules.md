@@ -1,4 +1,4 @@
-|             | label_type   | molecule_type    | chemical_formula      |   ion_mz |   neutral_mass |
+|     name    | label_type   | molecule_type    | chemical_formula      |   ion_mz |   neutral_mass |
 |:------------|:-------------|:-----------------|:----------------------|---------:|---------------:|
 | TMT126      | TMT          | reporter         | C8N1H15               |  126.128 |                |
 | TMT127N     | TMT          | reporter         | C8[15N1]H15           |  127.125 |                |
