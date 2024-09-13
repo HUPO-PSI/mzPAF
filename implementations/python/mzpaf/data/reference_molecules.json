@@ -269,5 +269,115 @@
     "molecule_type": "reporter",
     "chemical_formula": "C2[13C5]N1H15",
     "ion_mz": 118.141141
+  },
+  "sidechain_A": {
+    "molecule_type": "sidechain",
+    "chemical_formula": "C1H3",
+    "neutral_mass": 15.023475
+  },
+  "sidechain_C": {
+    "molecule_type": "sidechain",
+    "chemical_formula": "C1H3S1",
+    "neutral_mass": 46.995546
+  },
+  "sidechain_D": {
+    "molecule_type": "sidechain",
+    "chemical_formula": "C2H2O2",
+    "neutral_mass": 58.005479
+  },
+  "sidechain_E": {
+    "molecule_type": "sidechain",
+    "chemical_formula": "C3H4O2",
+    "neutral_mass": 72.021129
+  },
+  "sidechain_F": {
+    "molecule_type": "sidechain",
+    "chemical_formula": "C7H7",
+    "neutral_mass": 91.054775
+  },
+  "sidechain_G": {
+    "molecule_type": "sidechain",
+    "chemical_formula": "H1",
+    "neutral_mass": 1.007825
+  },
+  "sidechain_H": {
+    "molecule_type": "sidechain",
+    "chemical_formula": "C4H5N2",
+    "neutral_mass": 81.045273
+  },
+  "sidechain_I": {
+    "molecule_type": "sidechain",
+    "chemical_formula": "C4H9",
+    "neutral_mass": 57.070425
+  },
+  "sidechain_J": {
+    "molecule_type": "sidechain",
+    "chemical_formula": "C4H9",
+    "neutral_mass": 57.070425
+  },
+  "sidechain_K": {
+    "molecule_type": "sidechain",
+    "chemical_formula": "C4H10N1",
+    "neutral_mass": 72.081324
+  },
+  "sidechain_L": {
+    "molecule_type": "sidechain",
+    "chemical_formula": "C4H9",
+    "neutral_mass": 57.070425
+  },
+  "sidechain_M": {
+    "molecule_type": "sidechain",
+    "chemical_formula": "C3H7S1",
+    "neutral_mass": 75.026846
+  },
+  "sidechain_N": {
+    "molecule_type": "sidechain",
+    "chemical_formula": "C2H4N1O1",
+    "neutral_mass": 58.029289
+  },
+  "sidechain_O": {
+    "molecule_type": "sidechain",
+    "chemical_formula": "C9H17N2O1",
+    "neutral_mass": 169.134088
+  },
+  "sidechain_Q": {
+    "molecule_type": "sidechain",
+    "chemical_formula": "C3H6N1O1",
+    "neutral_mass": 72.044939
+  },
+  "sidechain_R": {
+    "molecule_type": "sidechain",
+    "chemical_formula": "C4H10N3",
+    "neutral_mass": 100.087472
+  },
+  "sidechain_S": {
+    "molecule_type": "sidechain",
+    "chemical_formula": "C1H3O1",
+    "neutral_mass": 31.018390
+  },
+  "sidechain_T": {
+    "molecule_type": "sidechain",
+    "chemical_formula": "C2H5O1",
+    "neutral_mass": 45.034040
+  },
+  "sidechain_U": {
+    "molecule_type": "sidechain",
+    "chemical_formula": "C1H3Se1",
+    "neutral_mass": 94.939997
+  },
+  "sidechain_V": {
+    "molecule_type": "sidechain",
+    "chemical_formula": "C3H7",
+    "neutral_mass": 43.054775
+  },
+  "sidechain_W": {
+    "molecule_type": "sidechain",
+    "chemical_formula": "C9H8N1",
+    "neutral_mass": 130.065674
+  },
+  "sidechain_Y": {
+    "molecule_type": "sidechain",
+    "chemical_formula": "C7H7O1",
+    "neutral_mass": 107.049690
   }
 }
