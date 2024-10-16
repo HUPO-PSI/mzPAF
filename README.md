@@ -12,7 +12,7 @@ The specification has been resubmitted to the PSI Document Process and is underg
 
 # Available Materials
 - The current DRAFT specification: [mzPAF_specification_v1.0-draft15.pdf](https://github.com/HUPO-PSI/mzPAF/blob/main/specification/mzPAF_specification_v1.0-draft15.pdf?raw=true)
-- Example annotated spectra: [Examples](https://github.com/HUPO-PSI/mzPAF/examples)
+- Example annotated spectra: [Examples](https://github.com/HUPO-PSI/mzPAF/tree/main/examples)
 - The GitHub repo associated with mzPAF: [https://github.com/HUPO-PSI/mzPAF](https://github.com/HUPO-PSI/mzPAF)
 - The GitHub repo assocated with the related mzSpecLib standard: [https://github.com/HUPO-PSI/mzSpecLib](https://github.com/HUPO-PSI/mzSpecLib)
 
