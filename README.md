@@ -6,12 +6,12 @@ The main home page for mzPAF is at the PSI web site: [https://psidev.info/mzPAF]
 
 # Status
 
-Updated: 2023-02-25
+Updated: 2024-10-15
 
-The specification has been submitted to the PSI Document Process and is undergoing review. It will take several months starting January 2023 to undergo rigorous review before potentially becoming a PSI standard.
+The specification has been resubmitted to the PSI Document Process and is undergoing final community review. It is anticipated to become a formal PSI standard near the end of 2024.
 
 # Available Materials
-- The current DRAFT specification: [https://github.com/HUPO-PSI/mzPAF/blob/main/specification/mzPAF_specification_v1.0-draft10.docx?raw=true](https://github.com/HUPO-PSI/mzPAF/blob/main/specification/mzPAF_specification_v1.0-draft10.docx?raw=true)
+- The current DRAFT specification: [https://github.com/HUPO-PSI/mzPAF/blob/main/specification/mzPAF_specification_v1.0-draft15.pdf?raw=true](https://github.com/HUPO-PSI/mzPAF/blob/main/specification/mzPAF_specification_v1.0-draft15.pdf?raw=true)
 - The GitHub repo associated with mzPAF: [https://github.com/HUPO-PSI/mzPAF](https://github.com/HUPO-PSI/mzPAF)
 - The GitHub repo assocated with the related mzSpecLib standard: [https://github.com/HUPO-PSI/mzSpecLib](https://github.com/HUPO-PSI/mzSpecLib)
 
