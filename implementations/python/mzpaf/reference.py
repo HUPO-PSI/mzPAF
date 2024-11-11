@@ -2,9 +2,10 @@ import json
 from importlib.resources import open_text
 
 from dataclasses import dataclass, field, asdict
-from typing import Any, List, Optional, Pattern, Dict, Tuple, Type, Union, ClassVar
+from typing import List, Optional, Dict, ClassVar
 
 PROTON = 1.00727646677
+
 
 def _neutral_mass(mz, z, charge_carrier=PROTON):
     return (mz * abs(z)) - (z * charge_carrier)
@@ -64,6 +65,11 @@ class ReferenceMolecule:
             cls._load_registry()
         return cls._registry[name]
 
+    @classmethod
+    def is_reference(cls, name: str) -> bool:
+        if cls._registry is None:
+            cls._load_registry()
+        return name in cls._registry
 
 
 def load_json(stream) -> Dict[str, ReferenceMolecule]:

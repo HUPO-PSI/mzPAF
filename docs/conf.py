@@ -100,5 +100,3 @@ intersphinx_mapping = {
 
 def setup(app):
     config = {"enable_eval_rst": True}  # noqa: F841
-
-

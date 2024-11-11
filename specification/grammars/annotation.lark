@@ -22,7 +22,7 @@ CHARACTER : LETTER | DIGIT | SYMBOL
 
 CONTENT_IN_BRACES : LETTER | DIGIT | SYMBOL_WITHOUT_CLOSING_BRACE | " "
 
-BRACE_ENCLOSED_CONTENT : "[" (CONTENT_IN_BRACES)+ "]"
+BRACE_ENCLOSED_CONTENT : "[" (CONTENT_IN_BRACES)+ ("[" (CONTENT_IN_BRACES | " ")+ "]")? "]"
 
 ANALYTE_REFERENCE : (CHARACTER)+
 
@@ -30,7 +30,7 @@ is_auxiliary : "&"
 
 analyte_reference_ : (ANALYTE_REFERENCE) "@"
 
-PEPTIDE_SERIES_SYMBOL : "a" | "x" | "b" | "y" | "c" | "z"
+PEPTIDE_SERIES_SYMBOL : "da" | "db" | "wa" | "wb" | "a" | "x" | "b" | "y" | "c" | "z" | "d" | "v" | "w"
 
 ORDINAL : (DIGIT)+
 
@@ -78,7 +78,7 @@ series_named_compound : "_" "{" CHARACTER+ "}"
 
 series_smiles : "s" "{" SMILES+ "}"
 
-series_unknown : "?" NUMBER*
+series_unknown : "?" ORDINAL?
 
 ion_series : series_peptide | series_immonium | series_internal | series_reporter | series_formula | series_named_compound | series_smiles | series_unknown
 

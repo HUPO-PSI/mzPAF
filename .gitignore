@@ -1,3 +1,4 @@
+.python-version
 .venv/
 .github/
 docs/_build/

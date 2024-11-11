@@ -5,23 +5,31 @@ This reference implementation includes parsing the compact text format
 and serializing.
 """
 import re
+from enum import Flag, auto as enauto
+from dataclasses import dataclass
 from sys import intern
 from typing import Any, List, Optional, Pattern, Dict, Tuple, Union
 import warnings
 
 try:
-    from pyteomics.proforma import ProForma
+    from pyteomics.mass import Composition
+except ImportError:
+    Composition = None
+try:
+    from pyteomics.proforma import (ProForma, FormulaModification, UnimodModification)
 except ImportError:
     ProForma = None
+    FormulaModification = None
 
 from .reference import ReferenceMolecule
 
 JSONDict = Dict[str, Union[List, Dict, int, float, str, bool, None]]
 
-annotation_pattern = re.compile(r"""
+annotation_pattern = re.compile(
+    r"""
 ^(?P<is_auxiliary>&)?
    (?:(?P<analyte_reference>\d+)@)?
-   (?:(?:(?P<series>[axbycz]\.?)(?P<ordinal>\d+)(?:\{(?P<sequence_ordinal>.+)\})?)|
+   (?:(?:(?P<series>(?:da|db|wa|wb)|[axbyczdwv]\.?)(?P<ordinal>\d+)(?:\{(?P<sequence_ordinal>.+)\})?)|
    (?P<series_internal>[m](?P<internal_start>\d+):(?P<internal_end>\d+)(?:\{(?P<sequence_internal>.+)\})?)|
    (?P<precursor>p)|
    (:?I(?P<immonium>[ARNDCEQGHKMFPSTWYVIL])(?:\[(?P<immonium_modification>(?:[^\]]+))\])?)|
@@ -30,7 +38,7 @@ annotation_pattern = re.compile(r"""
         (?P<reference_label>[^\]]+)
     \])
    ))|
-   (?:f\{(?P<formula>[A-Za-z0-9]+)\})|
+   (?:f\{(?P<formula>[A-Za-z0-9\[\]]+)\})|
    (?:_\{
     (?P<named_compound>[^\{\}\s,/]+)
     \})|
@@ -41,7 +49,7 @@ annotation_pattern = re.compile(r"""
     (?:(?:[A-Z][A-Za-z0-9]*)|
         (?:\[
             (?:
-                (?:[A-Za-z0-9:\.]+)
+                (?:[A-Za-z0-9:\.]+)(?:\[(?:[A-Za-z0-9\.:\-\ ]+)\])?
             )
             \])
     )
@@ -51,12 +59,23 @@ annotation_pattern = re.compile(r"""
 (?:\^(?P<charge>[+-]?\d+))?
 (?:/(?P<mass_error>[+-]?\d+(?:\.\d+)?)(?P<mass_error_unit>ppm)?)?
 (?:\*(?P<confidence>\d*(?:\.\d+)?))?
-""", re.X)
+""",
+    re.X,
+)
 
-# At the time of first writing, this pattern could be translated into the equivalent
-# ECMAScript compliant regex:
-# ^(?<is_auxiliary>&)?(?:(?<analyte_reference>\d+)@)?(?:(?:(?<series>[axbycz]\.?)(?<ordinal>\d+)(?:\{(?<sequence_ordinal>.+)\})?)|(?<series_internal>[m](?<internal_start>\d+):(?<internal_end>\d+)(?:\{(?<sequence_internal>.+)\})?)|(?<precursor>p)|(:?I(?<immonium>[ARNDCEQGHKMFPSTWYVIL])(?:\[(?<immonium_modification>(?:[^\]]+))\])?)|(?<reference>r(?:(?:\[(?<reference_label>[^\]]+)\])))|(?:f\{(?<formula>[A-Za-z0-9]+)\})|(?:_\{(?<named_compound>[^\{\}\s,\/]+)\})|(?:s\{(?<smiles>[^\}]+)\})|(?:(?<unannotated>\?)(?<unannotated_label>\d+)?))(?<neutral_losses>(?:[+-]\d*(?:(?:[A-Z][A-Za-z0-9]*)|(?:\[(?:(?:[A-Za-z0-9:\.]+))\])))+)?(?:(?<isotope>[+-]\d*)i)?(?:\[(?<adducts>M(:?[+-]\d*[A-Z][A-Za-z0-9]*)+)\])?(?:\^(?<charge>[+-]?\d+))?(?:\/(?<mass_error>[+-]?\d+(?:\.\d+)?)(?<mass_error_unit>ppm)?)?(?:\*(?<confidence>\d*(?:\.\d+)?))?
-# Line breaks not introduced to preserve syntactic correctness.
+
+neutral_loss_pattern = re.compile(
+    r"""\s*(?P<neutral_loss>(?:(?P<sign>[+-])?\s*(?P<coefficient>\d*)\s*
+    (?:(?P<formula>[A-Z][A-Za-z0-9]*)|
+        (?P<braced_name>\[
+            (?:
+                (?:[A-Za-z0-9:\.]+)(?:\[(?:[A-Za-z0-9\.:\-\ ]+)\])?
+            )
+            \])
+    )
+))""",
+    re.X,
+)
 
 
 def _sre_to_ecma(pattern):
@@ -121,6 +140,8 @@ def combine_formula(tokens: List[str], leading_sign: bool = False) -> str:
     """
     if not tokens:
         return ''
+    if not isinstance(tokens[0], str):
+        tokens = [str(t) for t in tokens]
     if not tokens[0].startswith("-") and leading_sign:
         out = ['+' + tokens[0]]
     else:
@@ -133,10 +154,142 @@ def combine_formula(tokens: List[str], leading_sign: bool = False) -> str:
     return ''.join(out)
 
 
+class NeutralNameType(Flag):
+    """:class:`NeutralName` classification"""
+
+    Reference = enauto()
+    Formula = enauto()
+    BracedName = enauto()
+    Unknown = enauto()
+
+
+@dataclass
+class NeutralName(object):
+    """
+    Describe an entity that may appear in the neutral loss list.
+
+    Attributes
+    ----------
+    name :  str
+        The name of the neutral loss which may be a formula or braced name
+        denoting either a "reference molecule" or a UNIMOD name
+    delta_type : :class:`NeutralNameType`
+        The kind of thing :attr:`name` denotes
+    coefficient : int
+        A signed multiplicative coefficient of the entity
+    """
+
+    name: str
+    delta_type: NeutralNameType = NeutralNameType.Unknown
+    coefficient: int = 1
+
+    def __post_init__(self):
+        self.delta_type = self._infer_type()
+
+    def format_name(self, leading_sign: bool = True) -> str:
+        name = self.name
+        if self.delta_type == NeutralNameType.Reference or self.delta_type == NeutralNameType.BracedName:
+            name = f"[{name}]"
+        if self.coefficient >= 0 and leading_sign:
+            if self.coefficient > 1:
+                return f'+{self.coefficient}{name}'
+            else:
+                return f"+{name}"
+        elif self.coefficient < 0:
+            if self.coefficient < -1:
+                return f"{self.coefficient}{name}"
+            else:
+                return f"-{name}"
+        else:
+            if self.coefficient > 1:
+                return f"{self.coefficient}{name}"
+            else:
+                return f"{name}"
+
+    def __str__(self):
+        return self.format_name()
+
+    def _infer_type(self):
+        if self.name.startswith('[') and self.name.endswith(']'):
+            inner_name = self.name = self.name[1:-1]
+            if ReferenceMolecule.is_reference(inner_name):
+                tp = NeutralNameType.Reference
+            else:
+                tp = NeutralNameType.BracedName
+            self.name = inner_name
+            return tp
+        else:
+            return NeutralNameType.Formula
+
+    def mass(self) -> float:
+        """
+        Calculcate the neutral mass.
+
+        This may involve loading the UNIMOD controlled vocabulary from a remote
+        source. See :mod:`pyteomics.proforma` for more information.
+        """
+        mass: float = 0.0
+        if self.delta_type == NeutralNameType.Formula:
+            mass = FormulaModification(self.name).mass
+        elif self.delta_type == NeutralNameType.Reference:
+            mass = ReferenceMolecule.get(self.name[1:-1]).neutral_mass
+        elif self.delta_type == NeutralNameType.BracedName:
+            mass = UnimodModification(self.name[1:-1]).mass
+        else:
+            raise ValueError(f"Cannot interpret {self.name} with type {self.delta_type}")
+        return self.coefficient * mass
+
+    def __eq__(self, other):
+        if other is None:
+            return False
+        if isinstance(other, str):
+            if other.startswith("+"):
+                return self.format_name(True)
+            else:
+                return self.format_name(False) == other
+        return self.name == other.name and self.coefficient == other.coefficient
+
+    @classmethod
+    def parse(cls, string: str) -> List['NeutralName']:
+        """
+        Parse a string of expressions into a list of :class:`NeutralName` using the tokenizer
+        from the main parser.
+        """
+        if not string:
+            return []
+        names = []
+        for match in neutral_loss_pattern.finditer(string):
+            groups = match.groupdict()
+            coef = int(groups['coefficient'] or 1)
+            sign = groups['sign'] or '+'
+            if sign == '-':
+                coef = -1 * coef
+            names.append(NeutralName(groups["formula"] or groups["braced_name"], coefficient=coef))
+        return names
+
+    @classmethod
+    def combine(cls, tokens: List["NeutralName"], leading_sign: bool) -> str:
+        """
+        Combine a list of :class:`NeutralName` into an expression string that is compatible
+        with :meth:`parse`.
+        """
+        if not tokens:
+            return ""
+        if tokens[0].coefficient >= 0 and leading_sign:
+            out = [tokens[0].format_name(leading_sign=leading_sign)]
+        else:
+            out = [tokens[0].format_name(leading_sign=False)]
+        for token in tokens[1:]:
+            out.append(token.format_name(leading_sign=True))
+        return "".join(out)
+
+
 class MassError(object):
     """
     Represent the mass error of a peak annotation.
 
+    Attributes
+    ----------
     unit : str
         The unit of the mass error, may be Da (daltons) or ppm (parts-per-million)
     mass_error : float
@@ -255,7 +408,7 @@ class IonAnnotationBase(object, metaclass=_SeriesLabelSubclassRegisteringMeta):
     isotope: int
     adducts: List
     charge: int
-    analyte_reference: str
+    analyte_reference: Optional[int]
     mass_error: MassError
     confidence: float
     rest: Any
@@ -308,7 +461,7 @@ class IonAnnotationBase(object, metaclass=_SeriesLabelSubclassRegisteringMeta):
             parts.append(f"{self.analyte_reference}@")
         parts.append(self._format_ion())
         if self.neutral_losses:
-            parts.append(combine_formula(
+            parts.append(NeutralName.combine(
                 self.neutral_losses, leading_sign=True))
         if self.isotope != 0:
             sign = "+" if self.isotope > 0 else "-"
@@ -351,9 +504,9 @@ class IonAnnotationBase(object, metaclass=_SeriesLabelSubclassRegisteringMeta):
         -------
         dict
         """
-        #TODO: When neutral losses and adducts are formalized types, convert to string/JSON here
+        # TODO: When neutral losses and adducts are formalized types, convert to string/JSON here
         d = {}
-        skips = ('series', 'rest', 'is_auxiliary')
+        skips = ('series', 'rest', 'is_auxiliary', 'neutral_losses')
         for key in IonAnnotationBase.__slots__:
             if key in skips:
                 continue
@@ -363,18 +516,29 @@ class IonAnnotationBase(object, metaclass=_SeriesLabelSubclassRegisteringMeta):
                 value = getattr(self, key)
                 if (value is not None) or not exclude_missing:
                     d[key] = value
+        d['neutral_losses'] = [str(s) for s in self.neutral_losses]
         d['molecule_description'] = self._molecule_description()
         # if d['analyte_reference'] is None:
         #     d['analyte_reference'] =
         return d
 
     def _populate_from_dict(self, data) -> 'IonAnnotationBase':
-        #TODO: When neutral losses and adducts are formalized types, parse from string here
+        # TODO: When neutral losses and adducts are formalized types, parse from string here
         for key, value in data.items():
             if key == 'molecule_description':
                 continue
             elif key == 'mass_error' and value is not None:
                 self.mass_error = MassError(value['value'], value['unit'])
+            elif key == "neutral_losses" and value is not None:
+                if isinstance(value, str):
+                    self.neutral_losses = NeutralName.parse(value)
+                elif isinstance(value, (list, tuple)):
+                    self.neutral_losses = []
+                    for tok in value:
+                        self.neutral_losses.extend(NeutralName.parse(tok))
+                else:
+                    self.neutral_losses = []
+                    warnings.warn(f"Failed to coerce {value} to neutral losses")
             else:
                 setattr(self, key, value)
         self.rest = None
@@ -719,6 +883,11 @@ class FormulaAnnotation(IonAnnotationBase):
         self.formula = descr['formula']
         return self
 
+    def to_composition(self) -> "Composition":
+        if Composition is None:
+            raise ImportError("Cannot use `to_composition` without `pyteomics`")
+        return FormulaModification(self.formula).resolve()['composition']
+
 
 class SMILESAnnotation(IonAnnotationBase):
     __slots__ = ("smiles", )
@@ -844,12 +1013,37 @@ def int_or_sign(string: str) -> int:
 
 
 class AnnotationStringParser(object):
+    """
+    An annotation string parser using a specific parser pattern.
+
+    This class organizes the parsing of common and type-specific components of a
+    string into one or more peak annotations.
+
+    Instances are :class:`Callable`, with :obj:`parse_annotation` being the reference
+    parser.
+    """
+
     pattern: Pattern
 
     def __init__(self, pattern):
         self.pattern = pattern
 
-    def __call__(self, annotation_string: str, *, wrap_errors=False, **kwargs) -> List[IonAnnotationBase]:
+    def __call__(self, annotation_string: str, *, wrap_errors: bool = False, **kwargs) -> List[IonAnnotationBase]:
+        """
+        Parse a string into one or more :class:`IonAnnotationBase` instances.
+
+        Parameters
+        ----------
+        annotation_string : str
+            The string to be parsed
+        wrap_errors : bool, optional
+            Whether or not to capture parsing errors as :class:`InvalidAnnotation` or not. Defaults to :const:`False`.
+
+        Returns
+        -------
+        list[:class:`IonAnnotationBase`] :
+            The annotations parsed
+        """
         try:
             return self.parse_annotation(annotation_string, **kwargs)
         except ValueError as err:
@@ -889,7 +1083,8 @@ class AnnotationStringParser(object):
         return data.get("analyte_reference", '1')
 
     def _coerce_neutral_losses(self, data: Dict[str, str]) -> List:
-        return tokenize_signed_symbol_list(data.get("neutral_losses"))
+        tokens = NeutralName.parse(data.get("neutral_losses", ''))
+        return tokens
 
     def _coerce_mass_error(self, data: Dict[str, str]) -> MassError:
         mass_error = data.get("mass_error")
@@ -908,6 +1103,22 @@ class AnnotationStringParser(object):
         return confidence
 
     def parse_annotation(self, annotation_string: str, **kwargs) -> List[IonAnnotationBase]:
+        """
+        Parse a string into one or more :class:`IonAnnotationBase` instances.
+
+        Parameters
+        ----------
+        annotation_string : str
+            The string to be parsed
+        **kwargs
+            Passed to the :meth:`_dispatch` which in turn creates :class:`IonAnnotationBase`
+            instances
+
+        Returns
+        -------
+        list[:class:`IonAnnotationBase`] :
+            The annotations parsed
+        """
         if not annotation_string:
             return []
 
@@ -1073,4 +1284,5 @@ class AnnotationStringParser(object):
             mass_error, confidence)
 
 
+#: The reference parser
 parse_annotation = AnnotationStringParser(annotation_pattern)

@@ -110,7 +110,7 @@
         "series": {
           "description": "The peptide ion series this ion belongs to",
           "type": "string",
-          "enum": ["b", "y", "a", "x", "c", "z"]
+          "enum": ["b", "y", "a", "x", "c", "z", "d", "v", "w", "da", "db", "wa", "wb"]
         },
         "position": {
           "description": "The position from the appropriate terminal along the peptide this ion was fragmented at (starting with 1)",

@@ -1,6 +1,5 @@
 import unittest
 import json
-import json
 
 from pathlib import Path
 import warnings
@@ -36,6 +35,12 @@ class TestAnnotationParser(unittest.TestCase):
         x, = parse_annotation("?^2")
         assert isinstance(x, Unannotated)
         self._matches_schema(x)
+
+    def test_satellite_ion_series(self):
+        base = "da32"
+        parsed = parse_annotation(base)[0]
+        assert parsed.series == "da"
+        assert parsed.position == 32
 
     def test_parse_annotation_complex(self):
         base = "b14"

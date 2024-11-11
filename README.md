@@ -2,12 +2,20 @@
 
 ## About
 
-The mzPAF proposed standard is a specification for a fragment ion peak annotation format for mass spectra, focused on
-peptides. This provides for a standardized format for describing the origin of fragment ions to be used in spectral
-libraries, other formats that aim to describe fragment ions, and software tools that annotate fragment ions.
+mzPAF is a specification for a fragment ion peak annotation format for mass spectra, focused on
+peptides. This provides for a standardized format for describing the origin of fragment ions to be
+used in spectral libraries, other formats that aim to describe fragment ions, and software tools
+that annotate fragment ions.
 
 - Official mzPAF homepage: [psidev.info/mzPAF](https://psidev.info/mzPAF)
 - mzPAF documentation: [mzpaf.readthedocs.io](https://mzpaf.readthedocs.io)
+
+## Status
+
+_Updated: 2024-10-15_
+
+The specification has been resubmitted to the PSI Document Process and is undergoing final
+community review. It is anticipated to become a formal PSI standard near the end of 2024.
 
 ## In short
 
@@ -89,24 +97,19 @@ Learn more at the
 
 ### mzPAF regular expressions
 
-[todo]
+The mzPAF specification includes regular expressions for parsing mzPAF strings. These can be used
+in any programming language that supports regular expressions.
+
+Learn more at the
+[mzPAF regex documentation](https://mzpaf.readthedocs.io/en/latest/implementations/regex/).
 
 ### mzPAF Lark grammar
 
-[todo]
-
-## Specification status
-
-Updated: 2023-09-01
-
-The specification has been resubmitted to the PSI Document Process and is undergoing final
-community review. Ratification to formally become a PSI standard is anticipated near the end of 2023.
-
-Your comments and suggestions are still very much welcome. Please submit an issue at the repo to
-provide your feedback and send an e-mail to the HUPO-PSI editor [Sylvie Ricard-Blum](mailto:sylvie.ricard-blum@univ-lyon1.fr).
+mzPAF has also been defined as a
+[Lark grammar](https://mzpaf.readthedocs.io/en/latest/implementations/lark/).
 
 ### Links
 
-- The GitHub repo associated with mzPAF: https://github.com/HUPO-PSI/mzPAF
-- The GitHub repo associated with the related mzSpecLib standard: https://github.com/HUPO-PSI/mzSpecLib
-- HUPO-PSI homepage: https://www.psidev.info/
+- The mzPAF GitHub repo: [github.com/HUPO-PSI/mzPAF](https://github.com/HUPO-PSI/mzPAF)
+- The GitHub repo for the related mzSpecLib standard: [github.com/HUPO-PSI/mzSpecLib](https://github.com/HUPO-PSI/mzSpecLib)
+- HUPO-PSI homepage: [psidev.info](https://www.psidev.info/)

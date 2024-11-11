@@ -3,8 +3,18 @@ import pathlib
 import string
 
 
-from railroad import (Diagram, Choice, Group, Optional, Terminal,
-                      NonTerminal, Sequence, OneOrMore, ZeroOrMore, Stack)
+from railroad import (
+    Diagram,
+    Choice,
+    Group,
+    Optional,
+    Terminal,
+    NonTerminal,
+    Sequence,
+    OneOrMore,
+    ZeroOrMore,
+    Stack,
+)
 import io
 
 from pyteomics.mass import std_aa_comp
@@ -25,7 +35,7 @@ DIGIT = Choice(0, *string.digits)
 ATOM_COUNT = Sequence(
     NonTerminal("UPPER_CASE_LETTER"),
     ZeroOrMore(NonTerminal("LOWER_CASE_LETTER")),
-    OneOrMore(NonTerminal("DIGIT"))
+    OneOrMore(NonTerminal("DIGIT")),
 )
 
 NUMBER = Sequence(
@@ -35,9 +45,9 @@ NUMBER = Sequence(
         Sequence(
             "e",
             OneOrMore(NonTerminal("DIGIT")),
-            Optional(Sequence(".", OneOrMore(NonTerminal("DIGIT"))))
+            Optional(Sequence(".", OneOrMore(NonTerminal("DIGIT")))),
         )
-    )
+    ),
 )
 
 ORDINAL = OneOrMore(NonTerminal("DIGIT"))
@@ -46,7 +56,7 @@ CHARACTER = Choice(
     0,
     NonTerminal("DIGIT"),
     NonTerminal("UPPER_CASE_LETTER"),
-    NonTerminal("LOWER_CASE_LETTER")
+    NonTerminal("LOWER_CASE_LETTER"),
 )
 
 AMINO_ACID = Choice(0, *list(std_aa_comp)[:-2])
@@ -56,7 +66,14 @@ SIGN = Choice(0, "+", "-")
 BraceEnclosedContent = Sequence(
     Terminal("["),
     OneOrMore(Choice(0, NonTerminal("CHARACTER"), NonTerminal("SYMBOL"))),
-    Terminal("]")
+    Optional(
+        Sequence(
+            Terminal("["),
+                OneOrMore(Choice(0, NonTerminal("CHARACTER"), NonTerminal("SYMBOL"), Terminal(" "))),
+            Terminal("]"),
+        )
+    ),
+    Terminal("]"),
 )
 
 IsAuxiliary = Group(Optional(Terminal("&")), "Is Auxiliary")
@@ -67,26 +84,20 @@ AnalyteIdentifier = Group(
 
 PeptideIon = Group(
     Sequence(
-        Choice(0, *list(map(Terminal, ("a", "b", "c", "x", "y", "z")))),
+        Choice(0, *list(map(Terminal, ("a", "b", "c", "x", "y", "z", "da", "db", "v", "wa", "wb")))),
         NonTerminal("ORDINAL"),
         Optional(
             Sequence(
                 Terminal("{"),
-                Group(OneOrMore(NonTerminal("ANY")), 'ProForma 2.0 Sequence'),
-                Terminal("}")
+                Group(OneOrMore(NonTerminal("ANY")), "ProForma 2.0 Sequence"),
+                Terminal("}"),
             )
-        )
+        ),
     ),
     "Peptide Ion",
 )
 
-ReporterIon = Group(
-    Sequence(
-        Terminal("r"),
-        BraceEnclosedContent
-    ),
-    "Reporter Ion"
-)
+ReporterIon = Group(Sequence(Terminal("r"), BraceEnclosedContent), "Reporter Ion")
 
 InternalIon = Group(
     Sequence(
@@ -96,9 +107,9 @@ InternalIon = Group(
         NonTerminal("ORDINAL"),
         Sequence(
             Terminal("{"),
-            Group(NonTerminal("ANY"), 'ProForma 2.0 Sequence'),
-            Terminal("}")
-        )
+            Group(NonTerminal("ANY"), "ProForma 2.0 Sequence"),
+            Terminal("}"),
+        ),
     ),
     "Internal Peptide Ion",
 )
@@ -108,48 +119,36 @@ ImmoniumIon = Group(
     "Immonium Ion",
 )
 
-PrecursorIon = Group(
-    Terminal("p"),
-    "Precursor Ion"
-)
+PrecursorIon = Group(Terminal("p"), "Precursor Ion")
 
 
-ChemicalFormula = OneOrMore(NonTerminal('ATOM_COUNT'))
+ChemicalFormula = OneOrMore(NonTerminal("ATOM_COUNT"))
 
 
 FormulaIon = Group(
-    Sequence(
-        Terminal("f"),
-        Terminal('{'),
-        ChemicalFormula,
-        Terminal('}')
-    ),
-    "Formula Ion"
+    Sequence(Terminal("f"), Terminal("{"), ChemicalFormula, Terminal("}")),
+    "Formula Ion",
 )
 
 NamedCompound = Group(
     Sequence(
         Terminal("_"),
-        Terminal('{'),
+        Terminal("{"),
         OneOrMore(NonTerminal("CHARACTER")),
-        Terminal('}'),
+        Terminal("}"),
     ),
-    "Named Compound"
+    "Named Compound",
 )
 
 UnknownIon = Group(
-    Sequence(Terminal("?"), Optional(OneOrMore(NonTerminal("DIGIT")))),
-    "Unknown Ion"
+    Sequence(Terminal("?"), Optional(OneOrMore(NonTerminal("DIGIT")))), "Unknown Ion"
 )
 
 SMILESIon = Group(
     Sequence(
-        Terminal("s"),
-        Terminal('{'),
-        OneOrMore(Terminal("/[^}]/")),
-        Terminal('}')
+        Terminal("s"), Terminal("{"), OneOrMore(Terminal("/[^}]/")), Terminal("}")
     ),
-    "SMILES Ion"
+    "SMILES Ion",
 )
 
 IonType = Group(
@@ -165,15 +164,12 @@ IonType = Group(
         SMILESIon,
         UnknownIon,
     ),
-    "Ion Type"
+    "Ion Type",
 )
 
 NeutralLoss = Group(
-    Sequence(
-        NonTerminal('SIGN'),
-        Choice(0, ChemicalFormula, BraceEnclosedContent)
-    ),
-    "Neutral Loss(es)"
+    Sequence(NonTerminal("SIGN"), Choice(0, ChemicalFormula, BraceEnclosedContent)),
+    "Neutral Loss(es)",
 )
 
 Isotope = Group(
@@ -182,64 +178,41 @@ Isotope = Group(
         Optional(NonTerminal("ORDINAL")),
         Terminal("i"),
     ),
-    "Isotope"
+    "Isotope",
 )
 
-ChargeState = Group(
-    Sequence(
-        "^",
-        NonTerminal("ORDINAL")
-    ),
-    "Charge State"
-)
+ChargeState = Group(Sequence("^", NonTerminal("ORDINAL")), "Charge State")
 
 Adducts = Group(
     Sequence(
-        '[',
-        'M',
+        "[",
+        "M",
         OneOrMore(
             Sequence(
-                NonTerminal('SIGN'),
+                NonTerminal("SIGN"),
                 ChemicalFormula,
             )
         ),
-        ']'
+        "]",
     ),
-    "Adducts"
+    "Adducts",
 )
 
-MassError = Group(
-    Sequence(
-        '/',
-        NonTerminal("NUMBER"),
-        Optional("ppm")
-    ),
-    "Mass Error"
-)
+MassError = Group(Sequence("/", NonTerminal("NUMBER"), Optional("ppm")), "Mass Error")
 
-ConfidenceEstimate = Group(
-    Sequence(
-        "*",
-        NonTerminal("NUMBER")
-    ),
-    "Confidence Estimate"
-)
+ConfidenceEstimate = Group(Sequence("*", NonTerminal("NUMBER")), "Confidence Estimate")
 
 
-Annotation = (
-    Stack(
-        IsAuxiliary,
-        Optional(
-            AnalyteIdentifier
-        ),
-        IonType,
-        ZeroOrMore(NeutralLoss),
-        Optional(Isotope),
-        Optional(Adducts),
-        Optional(ChargeState),
-        Optional(MassError),
-        Optional(ConfidenceEstimate),
-    )
+Annotation = Stack(
+    IsAuxiliary,
+    Optional(AnalyteIdentifier),
+    IonType,
+    ZeroOrMore(NeutralLoss),
+    Optional(Isotope),
+    Optional(Adducts),
+    Optional(ChargeState),
+    Optional(MassError),
+    Optional(ConfidenceEstimate),
 )
 
 
@@ -255,12 +228,12 @@ def render_group_to_file(fh, name):
     print("Writing", name)
     tokens = globals()[name]
     pathname: pathlib.Path = (image_dir / name).with_suffix(".svg")
-    with pathname.open('wt') as img_fh:
+    with pathname.open("wt") as img_fh:
         img_fh.write(encode_svg(Diagram(tokens)))
     fh.write(f"""## {name}\n<img src="{pathname}">\n\n""")
 
 
-with open("grammar.md", 'wt') as fh:
+with open("grammar.md", "wt") as fh:
     fh.write("""# Peak Annotation Grammar\n\n""")
     render_group_to_file(fh, "DIGIT")
     render_group_to_file(fh, "LOWER_CASE_LETTER")
