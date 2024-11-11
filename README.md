@@ -17,6 +17,9 @@ _Updated: 2024-10-15_
 The specification has been resubmitted to the PSI Document Process and is undergoing final
 community review. It is anticipated to become a formal PSI standard near the end of 2024.
 
+- The current DRAFT specification: [mzPAF_specification_v1.0-draft15.pdf](https://github.com/HUPO-PSI/mzPAF/blob/main/specification/mzPAF_specification_v1.0-draft15.pdf?raw=true)
+- Example annotated spectra: [Examples](https://github.com/HUPO-PSI/mzPAF/tree/main/examples)
+
 ## In short
 
 - mzPAF is a single string of characters, case sensitive, without length limit
