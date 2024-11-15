@@ -19,3 +19,4 @@ python:
       path: implementations/python
       extra_requirements:
         - docs
+    - requirements: docs/requirements.txt

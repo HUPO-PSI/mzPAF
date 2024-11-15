@@ -1,5 +1,53 @@
 """Configuration file for the Sphinx documentation builder."""
 
+# Scripts
+import json
+import shutil
+from pathlib import Path
+
+import jsonschema2md
+import pandas as pd
+
+
+def get_jsonschema_docs(input_json, output_markdown):
+    """Generate markdown documentation from a JSON schema."""
+    parser = jsonschema2md.Parser()
+    with open(input_json, encoding="utf-8") as f_in:
+        output_md = parser.parse_schema(json.load(f_in))
+
+    with open(output_markdown, "w", encoding="utf-8") as f_out:
+        f_out.writelines(output_md)
+
+
+def get_reference_molecules_md(input_json, output_markdown):
+    """Generate a markdown table of reference molecules."""
+    df = pd.read_json(input_json).T
+    buf = df.to_markdown().replace(' nan ', '     ')
+    with open(output_markdown, 'wt') as fh:
+        fh.write(buf)
+
+
+get_jsonschema_docs(
+    "../specification/annotation-schema.json",
+    "../specification/annotation-schema.md"
+)
+get_jsonschema_docs(
+    "../specification/reference_data/reference_molecule_schema.json",
+    "../specification/reference_data/reference_molecule_schema.md"
+)
+
+get_reference_molecules_md(
+    "../specification/reference_data/reference_molecules.json",
+    "../specification/reference_data/reference_molecules.md"
+)
+
+if not Path("_static/img/lark-railroad-diagram.svg").exists():
+    shutil.copy(
+        "../specification/grammars/schema_images/Annotation.svg",
+        "_static/img/lark-railroad-diagram.svg"
+    )
+
+
 # Project information
 project = "mzPAF"
 author = "HUPO-PSI"
@@ -16,7 +64,7 @@ extensions = [
     "sphinx_click.ext",
     "myst_parser",
 ]
-source_suffix = [".rst"]
+source_suffix = [".rst", ".md"]
 master_doc = "index"
 exclude_patterns = ["_build"]
 
@@ -46,6 +94,7 @@ intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
     "psims": ("https://mobiusklein.github.io/psims/docs/build/html/", None),
     "pyteomics": ("https://pyteomics.readthedocs.io/en/stable/", None),
+    "mzspeclib": ("https://mzspeclib.readthedocs.io/en/latest/", None),
 }
 
 

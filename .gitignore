@@ -1,0 +1,5 @@
+.python-version
+.venv/
+.github/
+docs/_build/
+specification/annotation-schema.md

@@ -1,7 +1,6 @@
 .. include::  ../README.md
    :parser: myst_parser.sphinx_
 
-
 .. toctree::
    :caption: About
    :hidden:
@@ -9,5 +8,6 @@
    :glob:
 
    Home <self>
-   implementations/index
-   specification/index
+   Specification <specification/index>
+   Implementations <implementations/index>
+   Contributing <contributing>
