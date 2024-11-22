@@ -9,6 +9,11 @@ import jsonschema2md
 import pandas as pd
 
 
+CONF_DIR = Path(__file__).parent
+STATIC_DIR = CONF_DIR / '_static'
+IMG_DIR = STATIC_DIR / 'img'
+
+
 def get_jsonschema_docs(input_json, output_markdown):
     """Generate markdown documentation from a JSON schema."""
     parser = jsonschema2md.Parser()
@@ -41,10 +46,16 @@ get_reference_molecules_md(
     "../specification/reference_data/reference_molecules.md"
 )
 
-if not Path("_static/img/lark-railroad-diagram.svg").exists():
+if not STATIC_DIR.exists():
+    STATIC_DIR.mkdir(exist_ok=True)
+
+if not IMG_DIR.exists():
+    IMG_DIR.mkdir(exist_ok=True)
+
+if not (IMG_DIR / "lark-railroad-diagram.svg").exists():
     shutil.copy(
         "../specification/grammars/schema_images/Annotation.svg",
-        "_static/img/lark-railroad-diagram.svg"
+        (IMG_DIR / "lark-railroad-diagram.svg"),
     )
 
 
