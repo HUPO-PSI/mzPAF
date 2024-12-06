@@ -17,12 +17,13 @@ setup(
             "pydata-sphinx-theme",
         ],
     ),
-    version="0.2.0-alpha",
+    version="0.2.0-beta",
     description="HUPO-PSI Peptide peak annotation format",
     classifiers=[
+        "License :: CC0 1.0 Universal (CC0 1.0) Public Domain Dedication",
         "Intended Audience :: Science/Research",
         "Programming Language :: Python :: 3 :: Only",
         "Topic :: Scientific/Engineering :: Bio-Informatics",
-        "Development Status :: 3 - Alpha",
+        "Development Status :: 4 - Beta",
     ],
 )
