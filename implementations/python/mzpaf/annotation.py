@@ -54,7 +54,9 @@ annotation_pattern = re.compile(
             \])
     )
 )+)?
-(?:(?P<isotope>[+-]\d*)i)?
+(?P<isotope>
+    (?:[+-]\d*)i(?:(?:\d+)(?:[A-Z][a-z]?)|(?:A))?
+)?
 (?:\[(?P<adducts>M(:?[+-]\d*[A-Z][A-Za-z0-9]*)+)\])?
 (?:\^(?P<charge>[+-]?\d+))?
 (?:/(?P<mass_error>[+-]?\d+(?:\.\d+)?)(?P<mass_error_unit>ppm)?)?
@@ -62,6 +64,10 @@ annotation_pattern = re.compile(
 """,
     re.X,
 )
+
+
+# (?:([+-]\d*)i(:?\d+(:?[A-Z][a-z]*))?)*
+isotope_pattern = re.compile(r"(?P<isotope>[+-]\d*)i(?:(?P<nucleon_count>\d+)(?P<element>[A-Z][a-z]?)|(?P<average_isotopologue>A))?")
 
 
 neutral_loss_pattern = re.compile(
@@ -284,6 +290,73 @@ class NeutralName(object):
         return "".join(out)
 
 
+@dataclass
+class _IsotopeVariant:
+    isotope: int
+    element: Optional[str] = None
+    nucleon_count: Optional[int] = None
+    average: bool = False
+
+    @classmethod
+    def parse(cls, string: str) -> Optional['IsotopeVariant']:
+        hit = isotope_pattern.search(string)
+        if hit:
+            return cls.from_parsed(hit.groupdict())
+        return None
+
+    @classmethod
+    def from_parsed(cls, state: dict) -> 'IsotopeVariant':
+        isotope = int_or_sign(state.get('isotope', ''))
+        nucleon_count = state.get('nucleon_count')
+        if nucleon_count:
+            nucleon_count = int(nucleon_count)
+        else:
+            nucleon_count = None
+        element = state.get('element')
+        average = bool(state.get("average_isotopologue"))
+        return cls(isotope, element, nucleon_count, average)
+
+    def format_name(self, leading_sign: bool = True) -> str:
+        if self.element:
+            element_suffix = f"{self.nucleon_count}{self.element}"
+        elif self.average:
+            element_suffix = 'A'
+        else:
+            element_suffix = ''
+        if self.isotope >= 0 and leading_sign:
+            if self.isotope > 1:
+                return f"+{self.isotope}i{element_suffix}"
+            else:
+                return f"+i{element_suffix}"
+        elif self.isotope < 0:
+            if self.isotope < -1:
+                return f"{self.isotope}i{element_suffix}"
+            else:
+                return f"-i{element_suffix}"
+        else:
+            if self.isotope > 1:
+                return f"{self.isotope}i{element_suffix}"
+            else:
+                return f"i{element_suffix}"
+
+    def __str__(self):
+        return self.format_name()
+
+
+class IsotopeVariant(_IsotopeVariant):
+    def __eq__(self, other: 'IsotopeVariant'):
+        if other is None:
+            return False
+        if isinstance(other, int):
+            other = IsotopeVariant(other)
+        elif isinstance(other, str):
+            other = IsotopeVariant.parse(other)
+        return super().__eq__(other)
+
+    def __ne__(self, other):
+        return not self == other
+
+
 class MassError(object):
     """
     Represent the mass error of a peak annotation.
@@ -405,7 +478,7 @@ class IonAnnotationBase(object, metaclass=_SeriesLabelSubclassRegisteringMeta):
 
     series: str
     neutral_losses: List
-    isotope: int
+    isotope: List[IsotopeVariant]
     adducts: List
     charge: int
     analyte_reference: Optional[int]
@@ -463,12 +536,14 @@ class IonAnnotationBase(object, metaclass=_SeriesLabelSubclassRegisteringMeta):
         if self.neutral_losses:
             parts.append(NeutralName.combine(
                 self.neutral_losses, leading_sign=True))
-        if self.isotope != 0:
-            sign = "+" if self.isotope > 0 else "-"
-            isotope = abs(self.isotope)
-            if isotope == 1:
-                isotope = ''
-            parts.append(f"{sign}{isotope}i")
+        # if self.isotope != 0:
+        #     sign = "+" if self.isotope > 0 else "-"
+        #     isotope = abs(self.isotope)
+        #     if isotope == 1:
+        #         isotope = ''
+        #     parts.append(f"{sign}{isotope}i")
+        if self.isotope:
+            parts.extend(map(str, self.isotope))
         if self.adducts:
             parts.append('[{}]'.format(combine_formula(
                 self.adducts, leading_sign=False)))
@@ -506,7 +581,7 @@ class IonAnnotationBase(object, metaclass=_SeriesLabelSubclassRegisteringMeta):
         """
         # TODO: When neutral losses and adducts are formalized types, convert to string/JSON here
         d = {}
-        skips = ('series', 'rest', 'is_auxiliary', 'neutral_losses')
+        skips = ('series', 'rest', 'is_auxiliary', 'neutral_losses', 'isotope')
         for key in IonAnnotationBase.__slots__:
             if key in skips:
                 continue
@@ -517,6 +592,7 @@ class IonAnnotationBase(object, metaclass=_SeriesLabelSubclassRegisteringMeta):
                 if (value is not None) or not exclude_missing:
                     d[key] = value
         d['neutral_losses'] = [str(s) for s in self.neutral_losses]
+        d['isotope'] = [str(s) for s in self.isotope]
         d['molecule_description'] = self._molecule_description()
         # if d['analyte_reference'] is None:
         #     d['analyte_reference'] =
@@ -529,6 +605,18 @@ class IonAnnotationBase(object, metaclass=_SeriesLabelSubclassRegisteringMeta):
                 continue
             elif key == 'mass_error' and value is not None:
                 self.mass_error = MassError(value['value'], value['unit'])
+
+            elif key == "isotope" and value is not None:
+                if isinstance(value, str):
+                    self.isotope.append(IsotopeVariant.parse(value))
+                elif isinstance(value, int):
+                    self.isotope.append(IsotopeVariant(value))
+                elif isinstance(value, (list, tuple)):
+                    self.isotope = []
+                    for tok in value:
+                        self.isotope.append(IsotopeVariant.parse(tok))
+                else:
+                    warnings.warn(f"Failed to coerce {value} to isotopic variant")
             elif key == "neutral_losses" and value is not None:
                 if isinstance(value, str):
                     self.neutral_losses = NeutralName.parse(value)
@@ -1060,8 +1148,14 @@ class AnnotationStringParser(object):
         data = match.groupdict()
         return match, data
 
-    def _coerce_isotope(self, data: Dict[str, str]) -> int:
-        isotope = int_or_sign(data.get('isotope', 0) or 0)
+    def _coerce_isotope(self, data: Dict[str, str]) -> List[IsotopeVariant]:
+        items = data.get('isotope') or ''
+        it = isotope_pattern.finditer(items)
+        isotope = []
+        for grp in it:
+            isotope.append(
+                IsotopeVariant.from_parsed(grp.groupdict())
+            )
         return isotope
 
     def _coerce_charge(self, data: Dict[str, str]) -> int:

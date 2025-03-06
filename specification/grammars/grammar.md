@@ -24,6 +24,9 @@
 ## SIGN
 <img src="schema_images\SIGN.svg">
 
+## ELEMENT
+<img src="schema_images\ELEMENT.svg">
+
 ## ATOM_COUNT
 <img src="schema_images\ATOM_COUNT.svg">
 

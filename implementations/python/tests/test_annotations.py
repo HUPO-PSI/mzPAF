@@ -63,7 +63,7 @@ class TestAnnotationParser(unittest.TestCase):
         assert parsed.series == 'b'
         assert parsed.position == 14
         assert parsed.neutral_losses == ['-H2O', '-NH3', '[Foo]']
-        assert parsed.isotope == 2
+        assert parsed.isotope[0] == 2
         self._matches_schema(parsed)
 
         base += "[M+NH4]^2"
@@ -71,7 +71,7 @@ class TestAnnotationParser(unittest.TestCase):
         assert parsed.series == 'b'
         assert parsed.position == 14
         assert parsed.neutral_losses == ['-H2O', '-NH3', '[Foo]']
-        assert parsed.isotope == 2
+        assert parsed.isotope[0] == 2
         assert parsed.charge == 2
         assert parsed.adducts == ["M", "NH4"]
         self._matches_schema(parsed)
@@ -82,7 +82,7 @@ class TestAnnotationParser(unittest.TestCase):
         assert parsed.series == 'b'
         assert parsed.position == 14
         assert parsed.neutral_losses == ['-H2O', '-NH3', '[Foo]']
-        assert parsed.isotope == 2
+        assert parsed.isotope[0] == 2
         assert parsed.charge == 2
         assert parsed.adducts == ["M", "NH4"]
         assert parsed.mass_error == MassError(0.5, 'ppm')
@@ -94,7 +94,7 @@ class TestAnnotationParser(unittest.TestCase):
         assert parsed.series == 'b'
         assert parsed.position == 14
         assert parsed.neutral_losses == ['-H2O', '-NH3', '[Foo]']
-        assert parsed.isotope == 2
+        assert parsed.isotope[0] == 2
         assert parsed.charge == 2
         assert parsed.adducts == ["M", "NH4"]
         assert parsed.mass_error == MassError(0.5, 'ppm')
@@ -108,7 +108,7 @@ class TestAnnotationParser(unittest.TestCase):
         assert parsed.series == 'b'
         assert parsed.position == 14
         assert parsed.neutral_losses == ['-H2O', '-NH3', '[Foo]']
-        assert parsed.isotope == 2
+        assert parsed.isotope[0] == 2
         assert parsed.charge == 2
         assert parsed.adducts == ["M", "NH4"]
         assert parsed.mass_error == MassError(0.5, 'ppm')
@@ -122,7 +122,7 @@ class TestAnnotationParser(unittest.TestCase):
         assert parsed.series == 'b'
         assert parsed.position == 14
         assert parsed.neutral_losses == ['-H2O', '-NH3', '[Foo]']
-        assert parsed.isotope == 2
+        assert parsed.isotope[0] == 2
         assert parsed.charge == 2
         assert parsed.adducts == ["M", "NH4"]
         assert parsed.mass_error == MassError(0.5, 'ppm')

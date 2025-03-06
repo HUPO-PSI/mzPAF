@@ -17,10 +17,14 @@ from railroad import (
 )
 import io
 
-from pyteomics.mass import std_aa_comp
+from pyteomics.mass import std_aa_comp, nist_mass
 
 image_dir = pathlib.Path("schema_images/")
 os.makedirs(image_dir, exist_ok=True)
+
+elements = sorted(nist_mass.keys())
+if 'e*' in elements:
+    elements.remove('e*')
 
 
 UPPER_CASE_LETTER = Choice(0, *string.ascii_uppercase)
@@ -30,6 +34,9 @@ LOWER_CASE_LETTER = Choice(0, *string.ascii_lowercase)
 SYMBOL = Choice(0, *[(c) for c in string.punctuation])
 
 DIGIT = Choice(0, *string.digits)
+
+
+ELEMENT = Choice(0, *elements)
 
 
 ATOM_COUNT = Sequence(
@@ -172,14 +179,28 @@ NeutralLoss = Group(
     "Neutral Loss(es)",
 )
 
-Isotope = Group(
+
+IsotopomerIdentity = Group(
+    Sequence(OneOrMore(NonTerminal("ORDINAL")), NonTerminal("ELEMENT")),
+    "Isotopomer Identity"
+)
+
+
+AverageIsotopologue = Group(
+    Terminal("A"),
+    "Average Isotopologue"
+)
+
+
+Isotope = ZeroOrMore(Group(
     Sequence(
         NonTerminal("SIGN"),
-        Optional(NonTerminal("ORDINAL")),
+        ZeroOrMore(NonTerminal("ORDINAL")),
         Terminal("i"),
+        Optional(Choice(0, IsotopomerIdentity, AverageIsotopologue)),
     ),
     "Isotope",
-)
+))
 
 ChargeState = Group(Sequence("^", NonTerminal("ORDINAL")), "Charge State")
 
@@ -208,7 +229,7 @@ Annotation = Stack(
     Optional(AnalyteIdentifier),
     IonType,
     ZeroOrMore(NeutralLoss),
-    Optional(Isotope),
+    Isotope,
     Optional(Adducts),
     Optional(ChargeState),
     Optional(MassError),
@@ -243,6 +264,7 @@ with open("grammar.md", "wt") as fh:
     render_group_to_file(fh, "NUMBER")
     render_group_to_file(fh, "CHARACTER")
     render_group_to_file(fh, "SIGN")
+    render_group_to_file(fh, "ELEMENT")
     render_group_to_file(fh, "ATOM_COUNT")
     render_group_to_file(fh, "AMINO_ACID")
     render_group_to_file(fh, "Annotation")

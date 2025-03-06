@@ -29,7 +29,7 @@ annotation_pattern = re.compile(
             \])
     )
 )+)?
-(?:(?P<isotope>[+-]\d*)i)?
+(?P<isotope>(?:([+-]\d*)i(:?\d+(:?[A-Z][a-z]*))?)*)?
 (?:\[(?P<adducts>M(:?[+-]\d*[A-Z][A-Za-z0-9]*)+)\])?
 (?:\^(?P<charge>[+-]?\d+))?
 (?:/(?P<mass_error>[+-]?\d+(?:\.\d+)?)(?P<mass_error_unit>ppm)?)?

@@ -36,8 +36,11 @@
     },
     "isotope": {
       "description": "An isotopic peak offset from the monoisotopic peak",
-      "type": "number",
-      "default": 0
+      "type": "array",
+      "items": {
+        "anyOf": [{ "type": "integer" }, { "$ref": "#/definitions/isotope_specification" }]
+      },
+      "default": []
     },
     "adducts": {
       "description": "The charge carrier(s) for the given annotation",
@@ -110,7 +113,21 @@
         "series": {
           "description": "The peptide ion series this ion belongs to",
           "type": "string",
-          "enum": ["b", "y", "a", "x", "c", "z", "d", "v", "w", "da", "db", "wa", "wb"]
+          "enum": [
+            "b",
+            "y",
+            "a",
+            "x",
+            "c",
+            "z",
+            "d",
+            "v",
+            "w",
+            "da",
+            "db",
+            "wa",
+            "wb"
+          ]
         },
         "position": {
           "description": "The position from the appropriate terminal along the peptide this ion was fragmented at (starting with 1)",
@@ -119,7 +136,7 @@
         },
         "sequence": {
           "description": "A ProForma 2.0 formatted peptidoform sequence describing the ion, which may be useful for contaminants or de novo sequencing",
-          "oneOf": [{"type": "string"}, {"type": "null"}]
+          "oneOf": [{ "type": "string" }, { "type": "null" }]
         }
       }
     },
@@ -260,6 +277,50 @@
         "unannotated_label": {
           "description": "A user-specified numeral label for an unannotated peak",
           "type": ["string", "null"]
+        }
+      }
+    },
+    "isotope_specification": {
+      "description": "A defined isotopic variant of another peak",
+      "type": "object",
+      "required": ["isotope", "variant"],
+      "additionalProperties": false,
+      "properties": {
+        "isotope": {
+          "type": "integer",
+          "description": "The number of times this isotope occurs in the "
+        },
+        "variant": {
+          "oneOf": [
+            { "$ref": "#/definitions/element_isotopic_variant" },
+            { "$ref": "#/definitions/average_isotopic_variant" },
+            { "type": "null" }
+          ]
+        }
+      }
+    },
+    "element_isotopic_variant": {
+      "type": "object",
+      "required": ["element", "nucleon_count"],
+      "properties": {
+        "nucleon_count": {
+          "type": "integer",
+          "description": "The number of nucleons this isotope differs in with respect to the monoisotopic isotopologue"
+        },
+        "element": {
+          "type": "string",
+          "description": "The name of element the isotopologue comes from"
+        }
+      }
+    },
+    "average_isotopic_variant": {
+      "type": "object",
+      "required": ["averaged"],
+      "additionalProperties": false,
+      "properties": {
+        "averaged": {
+          "type": "boolean",
+          "description": "Whether or not the isotopic peak is defined as the \"average\" isotopomer of the known chemical composition"
         }
       }
     }
