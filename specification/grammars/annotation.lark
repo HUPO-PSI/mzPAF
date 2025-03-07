@@ -36,7 +36,7 @@ ORDINAL : (DIGIT)+
 
 NUMBER : DIGIT ("." (DIGIT)+)?
 
-AMINO_ACID : "A" | "R" | "N" | "D" | "C" | "E" | "Q" | "G" | "H" | "K" | "M" | "F" | "P" | "S" | "T" | "W" | "Y" | "V" | "I" | "L"
+AMINO_ACID : UPPER_CASE_LETTER
 
 ELEMENT : "Ac" | "Ag" | "Al" | "Am" | "Ar" | "As" | "At" | "Au" | "B" | "Ba" | "Be" | "Bh" | "Bi" | "Bk" | "Br" | "C" | "Ca" | "Cd" |
           "Ce" | "Cf" | "Cl" | "Cm" | "Cn" | "Co" | "Cr" | "Cs" | "Cu" | "Db" | "Ds" | "Dy" | "Er" | "Es" | "Eu" | "F" | "Fe" | "Fm" |

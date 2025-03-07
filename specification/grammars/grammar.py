@@ -66,7 +66,7 @@ CHARACTER = Choice(
     NonTerminal("LOWER_CASE_LETTER"),
 )
 
-AMINO_ACID = Choice(0, *list(std_aa_comp)[:-2])
+AMINO_ACID = UPPER_CASE_LETTER
 
 SIGN = Choice(0, "+", "-")
 

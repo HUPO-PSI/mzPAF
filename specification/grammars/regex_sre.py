@@ -7,7 +7,7 @@ annotation_pattern = re.compile(
    (?:(?:(?P<series>(?:da|db|wa|wb)|[axbyczdwv]\.?)(?P<ordinal>\d+)(?:\{(?P<sequence_ordinal>.+)\})?)|
    (?P<series_internal>[m](?P<internal_start>\d+):(?P<internal_end>\d+)(?:\{(?P<sequence_internal>.+)\})?)|
    (?P<precursor>p)|
-   (:?I(?P<immonium>[ARNDCEQGHKMFPSTWYVIL])(?:\[(?P<immonium_modification>(?:[^\]]+))\])?)|
+   (:?I(?P<immonium>[A-Z])(?:\[(?P<immonium_modification>(?:[^\]]+))\])?)|
    (?P<reference>r(?:
     (?:\[
         (?P<reference_label>[^\]]+)
