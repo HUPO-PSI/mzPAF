@@ -65,6 +65,8 @@ class TestAnnotationParser(unittest.TestCase):
         assert parsed.neutral_losses == ['-H2O', '-NH3', '[Foo]']
         assert parsed.isotope[0] == 2
         self._matches_schema(parsed)
+        dup = parsed.from_json(parsed.to_json())
+        assert parsed == dup
 
         base += "[M+NH4]^2"
         parsed = parse_annotation(base)[0]
@@ -173,3 +175,16 @@ class TestAnnotationParser(unittest.TestCase):
         x, = parse_annotation("r[TMT126]")
         assert x.reference == 'TMT126'
         self._matches_schema(x)
+
+    def test_isotope_variants_average(self):
+        average = "b14+2iA"
+        parsed = parse_annotation(average)[0]
+        assert parsed.isotope[0].average
+        assert parsed.isotope[0].isotope == 2
+
+    def test_isotope_variants_element(self):
+        average = "b14+2i13C"
+        parsed = parse_annotation(average)[0]
+        assert parsed.isotope[0].element == 'C'
+        assert parsed.isotope[0].isotope == 2
+        assert parsed.isotope[0].nucleon_count == 13

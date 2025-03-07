@@ -297,6 +297,35 @@ class _IsotopeVariant:
     nucleon_count: Optional[int] = None
     average: bool = False
 
+    def to_dict(self) -> Dict[str, Any]:
+        state = {
+            "isotope": self.isotope,
+        }
+
+        if self.average:
+            state['variant'] = {
+                "averaged": True
+            }
+        elif self.element:
+            state['variant'] = {
+                "element": self.element,
+                "nucleon_count": self.nucleon_count,
+            }
+        return state
+
+    @classmethod
+    def from_dict(cls, state: Union[int, Dict[str, Any]]):
+        if isinstance(state, int):
+            return cls(isotope=state)
+        isotope = state['isotope']
+        if state.get('averaged'):
+            return cls(isotope=int(isotope), average=True)
+        element = state.get('element')
+        nucleon_count = state.get('nucleon_count')
+        if element and nucleon_count:
+            return cls(isotope=int(isotope), element=element, nucleon_count=int(nucleon_count))
+        return cls(isotope=int(isotope))
+
     @classmethod
     def parse(cls, string: str) -> Optional['IsotopeVariant']:
         hit = isotope_pattern.search(string)
@@ -536,12 +565,6 @@ class IonAnnotationBase(object, metaclass=_SeriesLabelSubclassRegisteringMeta):
         if self.neutral_losses:
             parts.append(NeutralName.combine(
                 self.neutral_losses, leading_sign=True))
-        # if self.isotope != 0:
-        #     sign = "+" if self.isotope > 0 else "-"
-        #     isotope = abs(self.isotope)
-        #     if isotope == 1:
-        #         isotope = ''
-        #     parts.append(f"{sign}{isotope}i")
         if self.isotope:
             parts.extend(map(str, self.isotope))
         if self.adducts:
@@ -592,7 +615,7 @@ class IonAnnotationBase(object, metaclass=_SeriesLabelSubclassRegisteringMeta):
                 if (value is not None) or not exclude_missing:
                     d[key] = value
         d['neutral_losses'] = [str(s) for s in self.neutral_losses]
-        d['isotope'] = [str(s) for s in self.isotope]
+        d['isotope'] = [s.to_dict() for s in self.isotope if s]
         d['molecule_description'] = self._molecule_description()
         # if d['analyte_reference'] is None:
         #     d['analyte_reference'] =
@@ -614,7 +637,10 @@ class IonAnnotationBase(object, metaclass=_SeriesLabelSubclassRegisteringMeta):
                 elif isinstance(value, (list, tuple)):
                     self.isotope = []
                     for tok in value:
-                        self.isotope.append(IsotopeVariant.parse(tok))
+                        if isinstance(tok, str):
+                            self.isotope.append(IsotopeVariant.parse(tok))
+                        else:
+                            self.isotope.append(IsotopeVariant.from_dict(tok))
                 else:
                     warnings.warn(f"Failed to coerce {value} to isotopic variant")
             elif key == "neutral_losses" and value is not None:

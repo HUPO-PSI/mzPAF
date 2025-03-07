@@ -283,7 +283,7 @@
     "isotope_specification": {
       "description": "A defined isotopic variant of another peak",
       "type": "object",
-      "required": ["isotope", "variant"],
+      "required": ["isotope"],
       "additionalProperties": false,
       "properties": {
         "isotope": {
