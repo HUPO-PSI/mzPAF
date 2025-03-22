@@ -36,10 +36,15 @@
     },
     "isotope": {
       "description": "An isotopic peak offset from the monoisotopic peak",
-      "type": "array",
-      "items": {
-        "anyOf": [{ "type": "integer" }, { "$ref": "#/definitions/isotope_specification" }]
-      },
+      "anyOf": [{ "type": "integer"}, {
+        "type": "array",
+        "items": {
+          "anyOf": [
+            { "type": "integer" },
+            { "$ref": "#/definitions/isotope_specification" }
+          ]
+        }
+      }],
       "default": []
     },
     "adducts": {
@@ -288,7 +293,7 @@
       "properties": {
         "isotope": {
           "type": "integer",
-          "description": "The number of times this isotope occurs in the "
+          "description": "The number of times this isotope occurs in the chemical composition of the ion"
         },
         "variant": {
           "oneOf": [
