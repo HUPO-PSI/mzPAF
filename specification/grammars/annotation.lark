@@ -56,7 +56,7 @@ SIGN : ("+" | "-")
 
 SMILES : /^([^J][0-9BCOHNSOPrIFla@+\-\[\]\(\)\\\/%=#$]{6,})$/i
 
-neutral_loss : SIGN (CHEMICAL_FORMULA | BRACE_ENCLOSED_CONTENT)
+neutral_loss : SIGN ORDINAL* (CHEMICAL_FORMULA | BRACE_ENCLOSED_CONTENT)
 
 isotope : SIGN (ORDINAL* "i") (ORDINAL+ ELEMENT)? isotope?
 

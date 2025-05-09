@@ -175,7 +175,7 @@ IonType = Group(
 )
 
 NeutralLoss = Group(
-    Sequence(NonTerminal("SIGN"), Choice(0, ChemicalFormula, BraceEnclosedContent)),
+    Sequence(NonTerminal("SIGN"), ZeroOrMore('ORDINAL'), Choice(0, ChemicalFormula, BraceEnclosedContent)),
     "Neutral Loss(es)",
 )
 
