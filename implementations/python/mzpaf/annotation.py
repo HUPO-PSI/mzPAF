@@ -46,7 +46,7 @@ annotation_pattern = re.compile(
    (?:(?P<unannotated>\?)(?P<unannotated_label>\d+)?)
 )
 (?P<neutral_losses>(?:[+-]\d*
-    (?:(?:[A-Z][A-Za-z0-9]*)|
+    (?:(?:(?:(?:\[[0-9]+[A-Z][A-Za-z0-9]*\])|(?:[A-Z][A-Za-z0-9]*))+)|
         (?:\[
             (?:
                 (?:[A-Za-z0-9:\.]+)(?:\[(?:[A-Za-z0-9\.:\-\ ]+)\])?
@@ -57,7 +57,7 @@ annotation_pattern = re.compile(
 (?P<isotope>
     (?:[+-]\d*)i(?:(?:\d+)(?:[A-Z][a-z]?)|(?:A))?
 )?
-(?:\[(?P<adducts>M(:?[+-]\d*[A-Z][A-Za-z0-9]*)+)\])?
+(?:\[(?P<adducts>M(:?[+-]\d*(?:\[\d+\])?[A-Z][A-Za-z0-9]*)+)\])?
 (?:\^(?P<charge>[+-]?\d+))?
 (?:/(?P<mass_error>[+-]?\d+(?:\.\d+)?)(?P<mass_error_unit>ppm)?)?
 (?:\*(?P<confidence>\d*(?:\.\d+)?))?
@@ -72,7 +72,7 @@ isotope_pattern = re.compile(r"(?P<isotope>[+-]\d*)i(?:(?P<nucleon_count>\d+)(?P
 
 neutral_loss_pattern = re.compile(
     r"""\s*(?P<neutral_loss>(?:(?P<sign>[+-])?\s*(?P<coefficient>\d*)\s*
-    (?:(?P<formula>[A-Z][A-Za-z0-9]*)|
+    (?:(?P<formula>(?:(?:[A-Z][A-Za-z0-9]*)|(?:\[\d+[A-Z][A-Za-z0-9]\]*))+)|
         (?P<braced_name>\[
             (?:
                 (?:[A-Za-z0-9:\.]+)(?:\[(?:[A-Za-z0-9\.:\-\ ]+)\])?

@@ -46,7 +46,7 @@ ELEMENT : "Ac" | "Ag" | "Al" | "Am" | "Ar" | "As" | "At" | "Au" | "B" | "Ba" | "
           "Sc" | "Se" | "Sg" | "Si" | "Sm" | "Sn" | "Sr" | "Ta" | "Tb" | "Tc" | "Te" | "Th" | "Ti" | "Tl" | "Tm" | "U" | "Lv" | "Og" |
           "Uup" | "Uuq" | "Uus" | "Uut" | "V" | "W" | "Xe" | "Y" | "Yb" | "Zn" | "Zr"
 
-ATOM_COUNT : UPPER_CASE_LETTER LOWER_CASE_LETTER? "-"? ORDINAL*
+ATOM_COUNT : (UPPER_CASE_LETTER LOWER_CASE_LETTER? "-"? ORDINAL*) | "[" ORDINAL+ UPPER_CASE_LETTER LOWER_CASE_LETTER? "-"? ORDINAL* "]"
 
 CHEMICAL_FORMULA : ATOM_COUNT+
 

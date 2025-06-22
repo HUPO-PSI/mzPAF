@@ -1,8 +1,7 @@
 import os
-import pathlib
 import string
 
-
+import railroad
 from railroad import (
     Diagram,
     Choice,
@@ -19,7 +18,10 @@ import io
 
 from pyteomics.mass import std_aa_comp, nist_mass
 
-image_dir = pathlib.Path("schema_images/")
+railroad.ESCAPE_HTML = True
+railroad.DEBUG = True
+
+image_dir = "schema_images/"
 os.makedirs(image_dir, exist_ok=True)
 
 elements = sorted(nist_mass.keys())
@@ -38,11 +40,19 @@ DIGIT = Choice(0, *string.digits)
 
 ELEMENT = Choice(0, *elements)
 
+ISOTOPE_ATOM_COUNT = Sequence(
+    "[",
+    OneOrMore(NonTerminal("DIGIT")),
+    NonTerminal("UPPER_CASE_LETTER"),
+    ZeroOrMore(NonTerminal("LOWER_CASE_LETTER")),
+    ZeroOrMore(NonTerminal("DIGIT")),
+    "]",
+)
 
 ATOM_COUNT = Sequence(
     NonTerminal("UPPER_CASE_LETTER"),
     ZeroOrMore(NonTerminal("LOWER_CASE_LETTER")),
-    OneOrMore(NonTerminal("DIGIT")),
+    ZeroOrMore(NonTerminal("DIGIT")),
 )
 
 NUMBER = Sequence(
@@ -104,7 +114,7 @@ PeptideIon = Group(
     "Peptide Ion",
 )
 
-ReporterIon = Group(Sequence(Terminal("r"), BraceEnclosedContent), "Reporter Ion")
+ReferenceIon = Group(Sequence(Terminal("r"), BraceEnclosedContent), "Reference Ion")
 
 InternalIon = Group(
     Sequence(
@@ -129,7 +139,7 @@ ImmoniumIon = Group(
 PrecursorIon = Group(Terminal("p"), "Precursor Ion")
 
 
-ChemicalFormula = OneOrMore(NonTerminal("ATOM_COUNT"))
+ChemicalFormula = OneOrMore(Choice(0, NonTerminal("ATOM_COUNT"), NonTerminal("ISOTOPE_ATOM_COUNT")))
 
 
 FormulaIon = Group(
@@ -164,7 +174,7 @@ IonType = Group(
         PeptideIon,
         InternalIon,
         ImmoniumIon,
-        ReporterIon,
+        ReferenceIon,
         PrecursorIon,
         FormulaIon,
         NamedCompound,
@@ -239,17 +249,16 @@ Annotation = Stack(
 
 def encode_svg(diagram):
     buffer = io.StringIO()
-    diagram.writeSvg(buffer.write)
+    diagram.writeStandalone(buffer.write)
     value: str = buffer.getvalue()
-    value = value.replace("\n", " ").replace("'", "&apos;")
     return value
 
 
 def render_group_to_file(fh, name):
     print("Writing", name)
     tokens = globals()[name]
-    pathname: pathlib.Path = (image_dir / name).with_suffix(".svg")
-    with pathname.open("wt") as img_fh:
+    pathname = f"{image_dir}{name}.svg"
+    with open(pathname, "wt") as img_fh:
         img_fh.write(encode_svg(Diagram(tokens)))
     fh.write(f"""## {name}\n<img src="{pathname}">\n\n""")
 
@@ -266,6 +275,7 @@ with open("grammar.md", "wt") as fh:
     render_group_to_file(fh, "SIGN")
     render_group_to_file(fh, "ELEMENT")
     render_group_to_file(fh, "ATOM_COUNT")
+    render_group_to_file(fh, "ISOTOPE_ATOM_COUNT")
     render_group_to_file(fh, "AMINO_ACID")
     render_group_to_file(fh, "Annotation")
     fh.write("\n")

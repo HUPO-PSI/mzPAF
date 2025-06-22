@@ -1,39 +1,42 @@
 # Peak Annotation Grammar
 
 ## DIGIT
-<img src="schema_images\DIGIT.svg">
+<img src="schema_images/DIGIT.svg">
 
 ## LOWER_CASE_LETTER
-<img src="schema_images\LOWER_CASE_LETTER.svg">
+<img src="schema_images/LOWER_CASE_LETTER.svg">
 
 ## UPPER_CASE_LETTER
-<img src="schema_images\UPPER_CASE_LETTER.svg">
+<img src="schema_images/UPPER_CASE_LETTER.svg">
 
 ## SYMBOL
-<img src="schema_images\SYMBOL.svg">
+<img src="schema_images/SYMBOL.svg">
 
 ## ORDINAL
-<img src="schema_images\ORDINAL.svg">
+<img src="schema_images/ORDINAL.svg">
 
 ## NUMBER
-<img src="schema_images\NUMBER.svg">
+<img src="schema_images/NUMBER.svg">
 
 ## CHARACTER
-<img src="schema_images\CHARACTER.svg">
+<img src="schema_images/CHARACTER.svg">
 
 ## SIGN
-<img src="schema_images\SIGN.svg">
+<img src="schema_images/SIGN.svg">
 
 ## ELEMENT
-<img src="schema_images\ELEMENT.svg">
+<img src="schema_images/ELEMENT.svg">
 
 ## ATOM_COUNT
-<img src="schema_images\ATOM_COUNT.svg">
+<img src="schema_images/ATOM_COUNT.svg">
+
+## ISOTOPE_ATOM_COUNT
+<img src="schema_images/ISOTOPE_ATOM_COUNT.svg">
 
 ## AMINO_ACID
-<img src="schema_images\AMINO_ACID.svg">
+<img src="schema_images/AMINO_ACID.svg">
 
 ## Annotation
-<img src="schema_images\Annotation.svg">
+<img src="schema_images/Annotation.svg">
 
 
