@@ -66,3 +66,8 @@
 | sidechain_V |              | sidechain        | C3H7                  |          |       43.0548  |
 | sidechain_W |              | sidechain        | C9H8N1                |          |      130.066   |
 | sidechain_Y |              | sidechain        | C7H7O1                |          |      107.05    |
+| Cytosine    |              | nucleobase       | C4H5N3O               | 112.0505 |                |
+| Adenine     |              | nucleobase       | C5H5N5                | 136.0618 |                |
+| Guanine     |              | nucleobase       | C5H5N5O               | 152.0567 |                |
+| Uracil      |              | nucleobase       | C4H4N2O2              | 113.0346 |                |
+| Thymine     |              | nucleobase       | C5H6N2O2              | 127.0502 |                |
