@@ -379,5 +379,30 @@
     "molecule_type": "sidechain",
     "chemical_formula": "C7H7O1",
     "neutral_mass": 107.049690
+  },
+  "Cytosine": {
+    "molecule_type": "nucleobase",
+    "chemical_formula": "C4H5N3O",
+    "ion_mz": 112.050538
+  },
+  "Adenine": {
+    "molecule_type": "nucleobase",
+    "chemical_formula": "C5H5N5",
+    "ion_mz": 136.061772
+  },
+  "Guanine": {
+    "molecule_type": "nucleobase",
+    "chemical_formula": "C5H5N5O",
+    "ion_mz": 152.056686
+  },
+  "Uracil": {
+    "molecule_type": "nucleobase",
+    "chemical_formula": "C4H4N2O2",
+    "ion_mz": 113.034554
+  },
+  "Thymine": {
+    "molecule_type": "nucleobase",
+    "chemical_formula": "C5H6N2O2",
+    "ion_mz": 127.050204
   }
 }
