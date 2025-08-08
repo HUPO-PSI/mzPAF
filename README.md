@@ -12,12 +12,12 @@ that annotate fragment ions.
 
 ## Status
 
-_Updated: 2024-10-15_
+_Updated: 2025-08-07_
 
 The specification has been resubmitted to the PSI Document Process and is undergoing final
-community review. It is anticipated to become a formal PSI standard near the end of 2024.
+community review. It is anticipated to become a formal PSI standard in mid 2025.
 
-- The current DRAFT specification: [mzPAF_specification_v1.0-draft15.pdf](https://github.com/HUPO-PSI/mzPAF/blob/main/specification/mzPAF_specification_v1.0-draft15.pdf?raw=true)
+- The current DRAFT specification: [mzPAF_specification_v1.0-draft18.pdf](https://github.com/HUPO-PSI/mzPAF/blob/main/specification/mzPAF_specification_v1.0-draft18.pdf?raw=true)
 - Example annotated spectra: [Examples](https://github.com/HUPO-PSI/mzPAF/tree/main/examples)
 
 ## In short
