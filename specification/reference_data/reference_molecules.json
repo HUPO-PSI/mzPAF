@@ -75,7 +75,7 @@
     "label_type": "TMT",
     "molecule_type": "reporter",
     "chemical_formula": "C2[13C6]N1H15",
-    "ion_mz": 122.147855
+    "ion_mz": 132.147855
   },
   "TMT133N": {
     "label_type": "TMT",
@@ -131,7 +131,7 @@
   "TMT6plex": {
     "label_type": "TMT6plex",
     "molecule_type": "reporter+balance",
-    "chemical_formula": "C8[13C5]H20N1[15N1]O2",
+    "chemical_formula": "C8[13C4]H20N1[15N1]O2",
     "neutral_mass": 229.162932,
     "ion_mz": 230.17020847
   },
