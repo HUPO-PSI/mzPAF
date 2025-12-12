@@ -75,7 +75,7 @@
     "label_type": "TMT",
     "molecule_type": "reporter",
     "chemical_formula": "C2[13C6]N1H15",
-    "ion_mz": 122.147855
+    "ion_mz": 132.147855
   },
   "TMT133N": {
     "label_type": "TMT",
@@ -131,7 +131,7 @@
   "TMT6plex": {
     "label_type": "TMT6plex",
     "molecule_type": "reporter+balance",
-    "chemical_formula": "C8[13C5]H20N1[15N1]O2",
+    "chemical_formula": "C8[13C4]H20N1[15N1]O2",
     "neutral_mass": 229.162932,
     "ion_mz": 230.17020847
   },
@@ -379,5 +379,30 @@
     "molecule_type": "sidechain",
     "chemical_formula": "C7H7O1",
     "neutral_mass": 107.049690
+  },
+  "Cytosine": {
+    "molecule_type": "nucleobase",
+    "chemical_formula": "C4H5N3O",
+    "ion_mz": 112.050538
+  },
+  "Adenine": {
+    "molecule_type": "nucleobase",
+    "chemical_formula": "C5H5N5",
+    "ion_mz": 136.061772
+  },
+  "Guanine": {
+    "molecule_type": "nucleobase",
+    "chemical_formula": "C5H5N5O",
+    "ion_mz": 152.056686
+  },
+  "Uracil": {
+    "molecule_type": "nucleobase",
+    "chemical_formula": "C4H4N2O2",
+    "ion_mz": 113.034554
+  },
+  "Thymine": {
+    "molecule_type": "nucleobase",
+    "chemical_formula": "C5H6N2O2",
+    "ion_mz": 127.050204
   }
 }
